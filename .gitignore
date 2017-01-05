@@ -1,0 +1,11 @@
+# synthesis directory
+synthesis/
+
+# temp files
+*.log
+verilog.key
+nWaveLog/
+INCA_libs/
+
+# DB file
+*.bak
