@@ -1,26 +1,15 @@
-`include "opcode.v"
-
 module FunctionUnit(
     input[6:0] opcode,
     input[3:0] fs,
     input[4:0] sh,
     input[31:0] a,
     input[31:0] b,
-    output[31:0] fout,
-    output overflow,
-    output carryout,
-    output negative,
-    output zero
+    output reg[31:0] fout,
+    output wire overflow,
+    output reg carryout,
+    output wire negative,
+    output wire zero
 );
-
-    reg[31:0] fout;
-    reg carryout;
-
-    wire[31:0] ex_b;
-    SignExtend signExtend(.in(b[15:0]), .out(ex_b));
-
-    wire[31:0] zr_b;
-    ZeroFill zeroFill(.in(b[15:0]), .out(zr_b));
 
     always @(*) begin
         case (opcode)
@@ -41,19 +30,19 @@ module FunctionUnit(
             `NOT:
                 {carryout, fout} = ~a;
             `ADI:
-                {carryout, fout} = a + ex_b;
+                {carryout, fout} = a + b;
             `SBI:
-                {carryout, fout} = a - ex_b;
+                {carryout, fout} = a - b;
             `ANI:
-                {carryout, fout} = a & zr_b;
+                {carryout, fout} = a & b;
             `ORI:
-                {carryout, fout} = a | zr_b;
+                {carryout, fout} = a | b;
             `XRI:
-                {carryout, fout} = a ^ zr_b;
+                {carryout, fout} = a ^ b;
             `AIU:
-                {carryout, fout} = a + zr_b;
+                {carryout, fout} = a + b;
             `SIU:
-                {carryout, fout} = a - zr_b;
+                {carryout, fout} = a - b;
             `MOVB:
                 {carryout, fout} = b;
             `LSR:
@@ -81,5 +70,4 @@ module FunctionUnit(
         endcase
     end
 endmodule
-
 

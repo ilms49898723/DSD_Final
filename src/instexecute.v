@@ -1,9 +1,11 @@
 module InstExecute(
+    input clk,
     input[31:0] busA,
     input[31:0] busB,
     input[6:0] opcode,
     input[3:0] fs,
     input[4:0] sh,
+    input mw,
     output[31:0] memout,
     output[31:0] fout,
     output overflow,
@@ -12,14 +14,16 @@ module InstExecute(
     output zero
 );
 
+    parameter program_data = "";
+
     // memory access
 
     // D memory signals
-    reg dm_cen;
-    reg dm_wen;
-    reg [10:0] dm_addr;
-    reg [31:0] dm_datain;
-    reg dm_oen;
+    wire dm_cen;
+    wire dm_wen;
+    wire [10:0] dm_addr;
+    wire [31:0] dm_datain;
+    wire dm_oen;
     wire [31:0] dm_dataout;
 
     assign dm_cen = 1'b0;

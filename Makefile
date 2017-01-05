@@ -8,7 +8,9 @@ SRCDIR     := src
 
 RAMMODEL   := ./$(LIBDIR)/RAM2Kx32.v
 
-MYSRC      := ./$(SRCDIR)/dflipflop.v \
+MYSRC      := ./$(SRCDIR)/opcode.v \
+			  ./$(SRCDIR)/constantunit.v \
+			  ./$(SRCDIR)/dflipflop.v \
 			  ./$(SRCDIR)/functionunit.v \
 			  ./$(SRCDIR)/instdecoder.v \
 			  ./$(SRCDIR)/instexecute.v \
@@ -16,8 +18,6 @@ MYSRC      := ./$(SRCDIR)/dflipflop.v \
 			  ./$(SRCDIR)/mux32_21.v \
 			  ./$(SRCDIR)/mux32_31.v \
 			  ./$(SRCDIR)/mux32_41.v \
-			  ./$(SRCDIR)/numutils.v \
-			  ./$(SRCDIR)/opcode.v \
 			  ./$(SRCDIR)/registerfile.v \
 			  ./$(SRCDIR)/risc.v
 
@@ -49,7 +49,7 @@ RM         := rm -rf
 
 .PHONY: clean
 
-all : sim
+all : check
 
 sim :
 	$(VLOG) $(SRC) $(VLOGARG)

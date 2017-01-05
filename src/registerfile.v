@@ -10,14 +10,14 @@ module RegisterFile(
     output[31:0] dataout1
 );
 
+    wire[31:0] regs[0:31];
+
     assign dataout0 = regs[raddr0];
     assign dataout1 = regs[raddr1];
 
     reg[31:0] load;
     wire[31:0] rload;
     assign rload = (wen == 1'b1) ? load : 32'b0;
-
-    wire[31:0] regs[0:31];
 
     DFlipFlop #(.width(32)) reg0(.clk(clk), .rst_n(rst_n), .load(rload[0]), .d(datain), .q(regs[0]));
     DFlipFlop #(.width(32)) reg1(.clk(clk), .rst_n(rst_n), .load(rload[1]), .d(datain), .q(regs[1]));
@@ -54,9 +54,9 @@ module RegisterFile(
 
     always @(*) begin
         if (waddr == 5'b0) begin
-            rload = 32'b0;
+            load = 32'b0;
         end else begin
-            rload = 32'b1 << waddr;
+            load = 32'b1 << waddr;
         end
     end
 endmodule

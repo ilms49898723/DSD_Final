@@ -9,3 +9,6 @@ INCA_libs/
 
 # DB file
 *.bak
+
+# fsdb file
+risc.fsdb

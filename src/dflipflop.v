@@ -1,12 +1,17 @@
 module DFlipFlop(
-    parameter width = 32
-)(
-    input clk,
-    input rst_n,
-    input load,
-    input[width - 1:0] d,
-    output[width - 1:0] q
+    clk,
+    rst_n,
+    load,
+    d,
+    q
 );
+    parameter width = 32;
+
+    input clk;
+    input rst_n;
+    input load;
+    input[width - 1:0] d;
+    output[width - 1:0] q;
 
     reg[width - 1:0] q;
 

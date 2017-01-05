@@ -1,36 +1,36 @@
-`include "opcode.v"
-
 module InstDecode(
     // instruction
     input[31:0] inst,
     // operation code
-    output[6:0] opcode,
+    output wire[6:0] opcode,
     // destination register
-    output[4:0] dr,
+    output wire[4:0] dr,
     // source register a
-    output[4:0] sa,
+    output wire[4:0] sa,
     // source register b
-    output[4:0] sb,
+    output wire[4:0] sb,
     // constant (immediate)
-    output[14:0] imm,
+    output wire[14:0] imm,
     // shift
-    output[4:0] sh
+    output wire[4:0] sh,
     // register write
-    output rw,
+    output reg rw,
     // mux d select
-    output[1:0] md,
+    output reg[1:0] md,
     // branch
-    output[1:0] bs,
+    output reg[1:0] bs,
     // branch
-    output ps,
+    output reg ps,
     // memory write
-    output mw,
+    output reg mw,
     // function select
-    output[3:0] fs,
+    output reg[3:0] fs,
     // mux a select
-    output ma,
+    output reg ma,
     // mux b select
-    output mb,
+    output reg mb,
+    // constant
+    output reg cs
 );
 
     assign opcode = inst[31:25];
@@ -39,16 +39,6 @@ module InstDecode(
     assign sb = inst[14:10];
     assign imm = inst[14:0];
     assign sh = inst[4:0];
-
-    reg rw;
-    reg[1:0] md;
-    reg[1:0] bs;
-    reg ps;
-    reg mw;
-    reg[3:0] fs;
-    reg ma;
-    reg mb;
-    reg cs;
 
     always @(*) begin
         if (opcode == `NOP ||
@@ -81,7 +71,7 @@ module InstDecode(
             bs = 2'b01;
         end else if (opcode == `JMP ||
             opcode == `JML) begin
-            bs = 2'b11
+            bs = 2'b11;
         end else begin
             bs = 2'b0;
         end
@@ -215,7 +205,7 @@ module InstDecode(
         if (opcode == `BNZ) begin
             ps = 1'b1;
         end else begin
-            ps = 1'b0
+            ps = 1'b0;
         end
     end
 endmodule
