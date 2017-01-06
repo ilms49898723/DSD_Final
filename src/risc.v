@@ -1,44 +1,12 @@
-// Risc main module
-//
-// Memory module placed in testbench
-// So add I/O ports for memory read/write
-
 module Risc(
-    // clock
     input clk,
-    // reset
     input rst_n,
-    // i-Mem output
-    input[31:0] im_dataout,
-    // d-Mem output
-    input[31:0] dm_dataout,
-    // i-Mem chip enable
-    output wire im_cen,
-    // i-Mem write enable
-    output im_wen,
-    // i-Mem output enable
-    output wire im_oen,
-    // i-Mem address
-    output[10:0] im_addr,
-    // i-Mem data input
-    output[31:0] im_datain,
-    // d-Mem chip enable
-    output wire dm_cen,
-    // d-Mem write enable
-    output wire dm_wen,
-    // d-Mem output enable
-    output wire dm_oen,
-    // d-Mem address
-    output wire[10:0] dm_addr,
-    // d-Mem data input
-    output wire[31:0] dm_datain,
-    // halt
     output halt
 );
 
     // pipeline dff include:
     // 1. ALU output
-    // 2. pc
+    // 2. pc ?
     // 3. instruction
     // 4. rA, rB
     //
@@ -49,18 +17,15 @@ module Risc(
     // execute or memory access
     // write back
 
-    // Memory signal assignment
-    assign im_cen = 1'b0;
-    assign im_oen = 1'b0;
-    assign dm_cen = 1'b0;
-    assign dm_oen = 1'b0;
-
     // --- signal ---
 
+    // data hazard stall
+    wire ha = (~ma_dof) & (dr_ex == sa_dof) & rw_ex & (dr_ex != 5'b0);
+    wire hb = (~mb_dof) & (dr_ex == sb_dof) & rw_ex & (dr_ex != 5'b0);
+    wire branchTaken = mc != 2'b0;
+    wire dhs = ha | hb | branchTaken;
+
     // program counter
-    // note: memory delay 1 cycle
-    // add one dff ?
-    wire[31:0] pc_plus_1;
     wire[31:0] pc_next;
     wire[31:0] pc_if;
     wire[31:0] pc_dof;
@@ -91,7 +56,6 @@ module Risc(
     wire mw_dof_t;
     wire ma_dof_t;
     wire mb_dof_t;
-    wire cs_dof_t;
 
     wire[14:0] imm_dof;
     wire[6:0] op_dof;
@@ -107,9 +71,6 @@ module Risc(
     wire mw_dof;
     wire ma_dof;
     wire mb_dof;
-    wire cs_dof;
-
-    wire[31:0] constant_dof;
 
     wire[14:0] imm_ex;
     wire[6:0] op_ex;
@@ -146,12 +107,6 @@ module Risc(
     wire carryout;
     wire negative;
     wire zero;
-
-    // data hazard stall
-    wire ha = (~ma_dof) & (dr_ex == sa_dof) & rw_ex & (dr_ex != 5'b0);
-    wire hb = (~mb_dof) & (dr_ex == sb_dof) & rw_ex & (dr_ex != 5'b0);
-    wire branchTaken = mc != 2'b0;
-    wire dhs = ha | hb | branchTaken;
 
     // mux c for pc update
     assign mc[0] = ((ps_ex ^ zero) | bs_ex[1]) & bs_ex[0];
@@ -194,12 +149,9 @@ module Risc(
     );
 
     InstFetch instFetch(
-        .clk(clk),
         .pc(pc_if),
-        .iaddr(im_addr)
+        .inst(inst_next)
     );
-
-    assign inst_next = im_dataout;
 
     assign inst_if = (mc == 2'b0) ? inst_next : 32'b0;
 
@@ -223,7 +175,7 @@ module Risc(
 
     InstDecode instDecode(
         .inst(inst_dof),
-        .opcode(op_dof_t),
+        .op(op_dof_t),
         .dr(dr_dof_t),
         .sa(sa_dof_t),
         .sb(sb_dof_t),
@@ -236,8 +188,7 @@ module Risc(
         .mw(mw_dof_t),
         .fs(fs_dof_t),
         .ma(ma_dof_t),
-        .mb(mb_dof_t),
-        .cs(cs_dof_t)
+        .mb(mb_dof_t)
     );
 
     assign imm_dof = (dhs == 1'b0) ? imm_dof_t : 15'b0;
@@ -254,13 +205,6 @@ module Risc(
     assign mw_dof = (dhs == 1'b0) ? mw_dof_t : 1'b0;
     assign ma_dof = (dhs == 1'b0) ? ma_dof_t : 1'b0;
     assign mb_dof = (dhs == 1'b0) ? mb_dof_t : 1'b0;
-    assign cs_dof = (dhs == 1'b0) ? cs_dof_t : 1'b0;
-
-    ConstantUnit constantUnit(
-        .in(imm_dof),
-        .cs(cs_dof),
-        .out(constant_dof)
-    );
 
     Mux32_21 muxA(
         .in0(regA),
@@ -271,13 +215,14 @@ module Risc(
 
     Mux32_21 muxB(
         .in0(regB),
-        .in1(constant_dof),
+        .in1(imm_dof),
         .sel(mb_dof),
         .out(busB)
     );
 
     // --- execute ---
 
+    DFlipFlop #(.width(15)) immExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(imm_dof), .q(imm_ex));
     DFlipFlop #(.width(7)) opExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(op_dof), .q(op_ex));
     DFlipFlop #(.width(5)) drExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(dr_dof), .q(dr_ex));
     DFlipFlop #(.width(5)) saExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(sa_dof), .q(sa_ex));
@@ -292,18 +237,13 @@ module Risc(
     DFlipFlop #(.width(1)) maExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(ma_dof), .q(ma_ex));
     DFlipFlop #(.width(1)) mbExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(mb_dof), .q(mb_ex));
 
-    assign dm_wen = mw_ex;
-    assign dm_addr = busA[10:0];
-    assign dm_datain = busB;
-    assign memout = dm_dataout;
-
     InstExecute instExecute(
-        .clk(clk),
         .busA(busA),
         .busB(busB),
-        .opcode(op_ex),
+        .op(op_ex),
         .fs(fs_ex),
         .sh(sh_ex),
+        .memout(memout),
         .fout(fout),
         .overflow(overflow),
         .carryout(carryout),
@@ -321,7 +261,8 @@ module Risc(
         .in0(fout),
         .in1(memout),
         .in2({31'b0, negative ^ overflow}),
-        .sel(md_wb),
+        .sel(md),
         .out(busD)
     );
+
 endmodule
