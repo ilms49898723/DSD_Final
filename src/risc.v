@@ -4,6 +4,9 @@ module Risc(
     output halt
 );
 
+    parameter program_code = "01_gcd_plain-bin.dat";
+    parameter program_data = "01_gcd_plain-data.dat";
+
     // pipeline dff include:
     // 1. ALU output
     // 2. pc ?
@@ -148,7 +151,9 @@ module Risc(
         .q(pc_if)
     );
 
-    InstFetch instFetch(
+    InstFetch #(
+        .program_code(program_code)
+    ) instFetch(
         .pc(pc_if),
         .inst(inst_next)
     );
@@ -237,7 +242,9 @@ module Risc(
     DFlipFlop #(.width(1)) maExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(ma_dof), .q(ma_ex));
     DFlipFlop #(.width(1)) mbExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(mb_dof), .q(mb_ex));
 
-    InstExecute instExecute(
+    InstExecute #(
+        .program_data(program_data)
+    ) instExecute(
         .busA(busA),
         .busB(busB),
         .op(op_ex),

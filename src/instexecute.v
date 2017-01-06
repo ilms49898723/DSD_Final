@@ -12,6 +12,8 @@ module InstExecute(
     output zero
 );
 
+    parameter program_data = "01_gcd_plain-data.dat";
+
     // memory access
 
     // D memory signals
@@ -45,7 +47,6 @@ module InstExecute(
     // function unit
 
     FunctionUnit functionUnit(
-        .opcode(opcode),
         .fs(fs),
         .sh(sh),
         .a(busA),

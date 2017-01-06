@@ -1,5 +1,4 @@
 module FunctionUnit(
-    input[6:0] opcode,
     input[3:0] fs,
     input[4:0] sh,
     input[31:0] a,
@@ -11,62 +10,46 @@ module FunctionUnit(
     output wire zero
 );
 
+    assign overflow = (a[31] == b[31] && fout[31] != a[31]);
+    assign negative = fout[31];
+    assign zero = (fout == 32'b0);
+
     always @(*) begin
-        case (opcode)
-            `NOP:
+        case (fs)
+            4'b0000:
                 {carryout, fout} = a;
-            `MOVA:
-                {carryout, fout} = a;
-            `ADD:
+            4'b0001:
+                {carryout, fout} = a + 1'b1;
+            4'b0010:
                 {carryout, fout} = a + b;
-            `SUB:
+            4'b0011:
+                {carryout, fout} = a + b + 1'b1;
+            4'b0100:
+                {carryout, fout} = a + (~b);
+            4'b0101:
                 {carryout, fout} = a - b;
-            `AND:
+            4'b0110:
+                {carryout, fout} = a - 1'b1;
+            4'b0111:
+                {carryout, fout} = a;
+            4'b1000:
                 {carryout, fout} = a & b;
-            `OR:
+            4'b1001:
                 {carryout, fout} = a | b;
-            `XOR:
+            4'b1010:
                 {carryout, fout} = a ^ b;
-            `NOT:
+            4'b1011:
                 {carryout, fout} = ~a;
-            `ADI:
-                {carryout, fout} = a + b;
-            `SBI:
-                {carryout, fout} = a - b;
-            `ANI:
-                {carryout, fout} = a & b;
-            `ORI:
-                {carryout, fout} = a | b;
-            `XRI:
-                {carryout, fout} = a ^ b;
-            `AIU:
-                {carryout, fout} = a + b;
-            `SIU:
-                {carryout, fout} = a - b;
-            `MOVB:
+            4'b1100:
                 {carryout, fout} = b;
-            `LSR:
-                {carryout, fout} = a << sh;
-            `LSL:
-                {carryout, fout} = a >> sh;
-            `LD:
-                {carryout, fout} = a;
-            `ST:
-                {carryout, fout} = a;
-            `JMR:
-                {carryout, fout} = a;
-            `SLT:
-                {carryout, fout} = a - b;
-            `BZ:
-                {carryout, fout} = (a == 32'b0);
-            `BNZ:
-                {carryout, fout} = (a != 32'b0);
-            `JMP:
-                {carryout, fout} = a;
-            `JML:
-                {carryout, fout} = a;
+            4'b1101:
+                {carryout, fout} = a << b;
+            4'b1110:
+                {carryout, fout} = a >> b;
+            4'b1111:
+                {carryout, fout} = 33'b0;
             default:
-                {carryout, fout} = 32'b0;
+                {carryout, fout} = 33'b0;
         endcase
     end
 endmodule
