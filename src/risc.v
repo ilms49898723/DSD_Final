@@ -1,12 +1,44 @@
+// Risc main module
+//
+// Memory module placed in testbench
+// So add I/O ports for memory read/write
+
 module Risc(
+    // clock
     input clk,
+    // reset
     input rst_n,
+    // i-Mem output
+    input[31:0] im_dataout,
+    // d-Mem output
+    input[31:0] dm_dataout,
+    // i-Mem chip enable
+    output wire im_cen,
+    // i-Mem write enable
+    output im_wen,
+    // i-Mem output enable
+    output wire im_oen,
+    // i-Mem address
+    output[10:0] im_addr,
+    // i-Mem data input
+    output[31:0] im_datain,
+    // d-Mem chip enable
+    output wire dm_cen,
+    // d-Mem write enable
+    output wire dm_wen,
+    // d-Mem output enable
+    output wire dm_oen,
+    // d-Mem address
+    output wire[10:0] dm_addr,
+    // d-Mem data input
+    output wire[31:0] dm_datain,
+    // halt
     output halt
 );
 
     // pipeline dff include:
     // 1. ALU output
-    // 2. pc ?
+    // 2. pc
     // 3. instruction
     // 4. rA, rB
     //
@@ -17,9 +49,17 @@ module Risc(
     // execute or memory access
     // write back
 
+    // Memory signal assignment
+    assign im_cen = 1'b0;
+    assign im_oen = 1'b0;
+    assign dm_cen = 1'b0;
+    assign dm_oen = 1'b0;
+
     // --- signal ---
 
     // program counter
+    // note: memory delay 1 cycle
+    // add one dff ?
     wire[31:0] pc_plus_1;
     wire[31:0] pc_next;
     wire[31:0] pc_if;
@@ -156,8 +196,10 @@ module Risc(
     InstFetch instFetch(
         .clk(clk),
         .pc(pc_if),
-        .inst(inst_next)
+        .iaddr(im_addr)
     );
+
+    assign inst_next = im_dataout;
 
     assign inst_if = (mc == 2'b0) ? inst_next : 32'b0;
 
@@ -250,6 +292,11 @@ module Risc(
     DFlipFlop #(.width(1)) maExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(ma_dof), .q(ma_ex));
     DFlipFlop #(.width(1)) mbExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(mb_dof), .q(mb_ex));
 
+    assign dm_wen = mw_ex;
+    assign dm_addr = busA[10:0];
+    assign dm_datain = busB;
+    assign memout = dm_dataout;
+
     InstExecute instExecute(
         .clk(clk),
         .busA(busA),
@@ -257,8 +304,6 @@ module Risc(
         .opcode(op_ex),
         .fs(fs_ex),
         .sh(sh_ex),
-        .mw(mw_ex),
-        .memout(memout),
         .fout(fout),
         .overflow(overflow),
         .carryout(carryout),
@@ -279,5 +324,4 @@ module Risc(
         .sel(md_wb),
         .out(busD)
     );
-
 endmodule

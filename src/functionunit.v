@@ -50,9 +50,9 @@ module FunctionUnit(
             `LSL:
                 {carryout, fout} = a >> sh;
             `LD:
-                {carryout, fout} = 32'b0;
+                {carryout, fout} = a;
             `ST:
-                {carryout, fout} = 32'b0;
+                {carryout, fout} = a;
             `JMR:
                 {carryout, fout} = a;
             `SLT:
@@ -62,9 +62,9 @@ module FunctionUnit(
             `BNZ:
                 {carryout, fout} = (a != 32'b0);
             `JMP:
-                {carryout, fout} = 32'b0;
+                {carryout, fout} = a;
             `JML:
-                {carryout, fout} = 32'b0;
+                {carryout, fout} = a;
             default:
                 {carryout, fout} = 32'b0;
         endcase
