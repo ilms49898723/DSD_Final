@@ -36,7 +36,7 @@ module stimulus;
     parameter program_code  = `BIN;
     parameter program_data  = `DATA;
 
-    parameter sdf_file      = "risc_syn.sdf";
+    parameter sdf_file      = "./src/risc_syn.sdf";
     parameter fsdb_syn_file = "risc_syn.fsdb";
     parameter fsdb_file     = "risc.fsdb";
     parameter vcd_syn_file  = "risc_syn.vcd";
@@ -53,10 +53,14 @@ module stimulus;
     wire halt;
     wire[31:0] regs[0:31];
 
-    Risc #(
+    Risc
+`ifndef SYNTHESIS
+    #(
         .program_code(program_code),
         .program_data(program_data)
-    ) risc(
+    )
+`endif
+    risc(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
@@ -99,7 +103,7 @@ module stimulus;
 
     initial begin
         `ifdef NETLIST
-            $sdf_annotate(sdf_file, risc1);
+            $sdf_annotate(sdf_file, risc);
             `ifdef FSDB
                 $fsdbDumpfile(fsdb_syn_file);
                 $fsdbDumpvars;

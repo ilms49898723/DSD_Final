@@ -29,8 +29,9 @@ PRESRC     := ./$(SRCDIR)/header.v \
 SRC        := $(PRESRC) \
 	          $(MYSRC)
 
-SYNSRC     := ./$(SRCDIR)/syn.v \
+SYNSRC     := ./$(SRCDIR)/testdata.v \
               ./$(SRCDIR)/header.v \
+			  ./$(SRCDIR)/risc_syn.v \
               ./$(SRCDIR)/risc_t.v \
               $(RAMMODEL) \
 			  /theda21_2/CBDK_IC_Contest/CBDK_IC_Contest_v2.1/Verilog/tsmc13.v
@@ -61,7 +62,7 @@ check :
 	$(VLOG) $(SRC) $(VLOGARG) -c +define+R$(R)
 
 syn :
-	$(VLOG) $(SYNSRC) $(VLOGARG) +define+R$(R)
+	$(VLOG) $(SYNSRC) $(VLOGARG) +define+R$(R) +define+SYNTHESIS +define+NETLIST +nctimescale+1ns/1ps
 
 clean :
 	-$(RM) $(DBFILE) $(TMPFILE)
