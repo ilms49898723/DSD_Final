@@ -7,10 +7,10 @@
 `define FSDB
 
 // Option to dump the entire memory content
-`define DEBUG_MEM
+//`define DEBUG_MEM
 
 // Option to trace read/write access to the data memory from the top level
-`define DEBUG_DATAMEM_RW
+//`define DEBUG_DATAMEM_RW
 
 // Option to trace memory read/write
 // Turned off by default because it would be annoying

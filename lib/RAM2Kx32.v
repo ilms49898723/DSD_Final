@@ -23,7 +23,7 @@ module RAM2Kx32 (
    parameter		   addr_width = 11;
    parameter		   wordx = {BITS{1'bx}};
    parameter		   addrx = {addr_width{1'bx}};
-	
+
    output [31:0] Q;
    input CLK;
    input CEN;
@@ -225,7 +225,7 @@ module RAM2Kx32 (
       endcase
    end
    endtask
-      
+
 
    task update_last_notifiers;
    begin
@@ -317,7 +317,7 @@ module RAM2Kx32 (
    task write_mem;
       input [addr_width-1:0] a;
       input [BITS-1:0] d;
- 
+
    begin
       casez({valid_address(a)})
         1'b0: begin
@@ -550,7 +550,7 @@ module RAM2Kx32 (
 //	      x_mem;
               read_mem(0,1);
 	   end
-	   
+
 	 endcase
 	 LAST_CLK = _CLK;
       end

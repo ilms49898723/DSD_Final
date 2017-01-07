@@ -42,8 +42,57 @@ module stimulus;
     parameter vcd_file      = "risc.vcd";
     parameter instr_count   = 20;
 
+    // for debugging
+    integer i;
+    integer cycle;
+
     reg clk;
     reg rst_n;
+    reg en;
+    wire halt;
+    wire[31:0] regs[0:31];
+
+    Risc #(
+        .program_code(program_code),
+        .program_data(program_data)
+    ) risc(
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(en),
+        .halt(halt),
+        .reg0(regs[0]),
+        .reg1(regs[1]),
+        .reg2(regs[2]),
+        .reg3(regs[3]),
+        .reg4(regs[4]),
+        .reg5(regs[5]),
+        .reg6(regs[6]),
+        .reg7(regs[7]),
+        .reg8(regs[8]),
+        .reg9(regs[9]),
+        .reg10(regs[10]),
+        .reg11(regs[11]),
+        .reg12(regs[12]),
+        .reg13(regs[13]),
+        .reg14(regs[14]),
+        .reg15(regs[15]),
+        .reg16(regs[16]),
+        .reg17(regs[17]),
+        .reg18(regs[18]),
+        .reg19(regs[19]),
+        .reg20(regs[20]),
+        .reg21(regs[21]),
+        .reg22(regs[22]),
+        .reg23(regs[23]),
+        .reg24(regs[24]),
+        .reg25(regs[25]),
+        .reg26(regs[26]),
+        .reg27(regs[27]),
+        .reg28(regs[28]),
+        .reg29(regs[29]),
+        .reg30(regs[30]),
+        .reg31(regs[31])
+    );
 
     always #(period/2) clk = ~clk;
 
@@ -70,9 +119,31 @@ module stimulus;
 
     initial begin
         // initialization
-        clk = 1;
+
+        clk = 1'b1;
+        en = 1'b0;
         rst_n = 1'b1;
+
+        #(period)
+        rst_n = 1'b0;
+
+        #(period)
+        rst_n = 1'b1;
+        en = 1'b1;
+
+        cycle = 0;
+
+        #(400)
+
         $finish;
+    end
+
+    always @(posedge clk) begin
+        $display("cycle = %d", cycle);
+        for (i = 0; i < 32; i = i + 1) begin
+            $display("reg[%d] = %d", i, regs[i]);
+        end
+        cycle = cycle + 1;
     end
 
     // `ifdef DEBUG

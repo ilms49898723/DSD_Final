@@ -20,19 +20,23 @@ module InstExecute(
 
     // D memory signals
     wire dm_cen;
-    wire dm_wen;
-    wire [10:0] dm_addr;
-    wire [31:0] dm_datain;
+    reg dm_wen;
+    reg [10:0] dm_addr;
+    reg [31:0] dm_datain;
     wire dm_oen;
     wire [31:0] dm_dataout;
 
     assign dm_cen = 1'b0;
     assign dm_oen = 1'b0;
-    assign dm_wen = mw;
-    assign dm_addr = busA[10:0];
-    assign dm_datain = busB;
 
     assign memout = dm_dataout;
+
+    always @(posedge clk) begin
+        #(1)
+        dm_wen <= ~mw;
+        dm_addr <= busA[10:0];
+        dm_datain <= busB;
+    end
 
     RAM2Kx32 #(
         .preload_file(program_data)

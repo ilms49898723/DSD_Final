@@ -3,9 +3,12 @@ synthesis/
 
 # temp files
 *.log
-verilog.key
+ncverilog.key
 nWaveLog/
 INCA_libs/
+
+novas.conf
+novas.rc
 
 # DB file
 *.bak
