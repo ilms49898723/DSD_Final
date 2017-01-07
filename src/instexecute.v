@@ -6,6 +6,8 @@ module InstExecute(
     input[3:0] fs,
     input[4:0] sh,
     input mw,
+    input[31:0] memaddr,
+    input[31:0] memdatain,
     output[31:0] memout,
     output[31:0] fout,
     output overflow,
@@ -34,8 +36,8 @@ module InstExecute(
     always @(posedge clk) begin
         #(1)
         dm_wen <= ~mw;
-        dm_addr <= busA[10:0];
-        dm_datain <= busB;
+        dm_addr <= memaddr[10:0];
+        dm_datain <= memdatain;
     end
 
     RAM2Kx32 #(

@@ -22,6 +22,7 @@ MYSRC      := ./$(SRCDIR)/opcode.v \
 			  ./$(SRCDIR)/risc.v
 
 PRESRC     := ./$(SRCDIR)/header.v \
+			  ./$(SRCDIR)/testdata.v \
               ./$(SRCDIR)/risc_t.v \
               $(RAMMODEL)
 
@@ -33,6 +34,8 @@ SYNSRC     := ./$(SRCDIR)/syn.v \
               ./$(SRCDIR)/risc_t.v \
               $(RAMMODEL) \
 			  /theda21_2/CBDK_IC_Contest/CBDK_IC_Contest_v2.1/Verilog/tsmc13.v
+
+R          := 01
 
 VLOGARG    := +access+r
 
@@ -52,13 +55,13 @@ RM         := rm -rf
 all : check
 
 sim :
-	$(VLOG) $(SRC) $(VLOGARG)
+	$(VLOG) $(SRC) $(VLOGARG) +define+R$(R)
 
 check :
-	$(VLOG) $(SRC) $(VLOGARG) -c
+	$(VLOG) $(SRC) $(VLOGARG) -c +define+R$(R)
 
 syn :
-	$(VLOG) $(SYNSRC) $(VLOGARG)
+	$(VLOG) $(SYNSRC) $(VLOGARG) +define+R$(R)
 
 clean :
 	-$(RM) $(DBFILE) $(TMPFILE)

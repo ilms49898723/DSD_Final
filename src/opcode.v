@@ -24,3 +24,4 @@
 `define BNZ   7'b1001000
 `define JMP   7'b1101000
 `define JML   7'b0110000
+`define HALT  7'b1111111

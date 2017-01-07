@@ -46,7 +46,8 @@ module InstDecode(
             opcode == `JMR ||
             opcode == `BZ  ||
             opcode == `BNZ ||
-            opcode == `JMP) begin
+            opcode == `JMP ||
+            opcode == `HALT) begin
             rw = 1'b0;
         end else begin
             rw = 1'b1;
@@ -94,59 +95,57 @@ module InstDecode(
     end
 
     always @(*) begin
-        fs = opcode[3:0];
+        case (opcode)
+            `NOP:
+                fs = 4'b0000;
+            `MOVA:
+                fs = 4'b0000;
+            `ADD:
+                fs = 4'b0010;
+            `SUB:
+                fs = 4'b0101;
+            `AND:
+                fs = 4'b1000;
+            `OR:
+                fs = 4'b1001;
+            `XOR:
+                fs = 4'b1010;
+            `NOT:
+                fs = 4'b1011;
+            `ADI:
+                fs = 4'b0010;
+            `SBI:
+                fs = 4'b0101;
+            `ANI:
+                fs = 4'b1000;
+            `ORI:
+                fs = 4'b1001;
+            `XRI:
+                fs = 4'b1010;
+            `AIU:
+                fs = 4'b0010;
+            `SIU:
+                fs = 4'b0101;
+            `MOVB:
+                fs = 4'b1100;
+            `LSR:
+                fs = 4'b1101;
+            `LSL:
+                fs = 4'b1110;
+            `SLT:
+                fs = 4'b0101;
+            `BZ:
+                fs = 4'b0000;
+            `BNZ:
+                fs = 4'b0000;
+            `JML:
+                fs = 4'b0000;
+            `HALT:
+                fs = 4'b0000;
+            default:
+                fs = 4'b0000;
+        endcase
     end
-
-    // always @(*) begin
-    //     case (opcode)
-    //         `NOP:
-    //             fs = 4'b0000;
-    //         `MOVA:
-    //             fs = 4'b0000;
-    //         `ADD:
-    //             fs = 4'b0010;
-    //         `SUB:
-    //             fs = 4'b0101;
-    //         `AND:
-    //             fs = 4'b1000;
-    //         `OR:
-    //             fs = 4'b1001;
-    //         `XOR:
-    //             fs = 4'b1010;
-    //         `NOT:
-    //             fs = 4'b1011;
-    //         `ADI:
-    //             fs = 4'b0010;
-    //         `SBI:
-    //             fs = 4'b0101;
-    //         `ANI:
-    //             fs = 4'b1000;
-    //         `ORI:
-    //             fs = 4'b1001;
-    //         `XRI:
-    //             fs = 4'b1010;
-    //         `AIU:
-    //             fs = 4'b0010;
-    //         `SIU:
-    //             fs = 4'b0101;
-    //         `MOVB:
-    //             fs = 4'b1100;
-    //         `LSR:
-    //             fs = 4'b1101;
-    //         `LSL:
-    //             fs = 4'b1110;
-    //         `SLT:
-    //             fs = 4'b0101;
-    //         `BZ:
-    //             fs = 4'b0000;
-    //         `BNZ:
-    //             fs = 4'b0000;
-    //         `JML:
-    //             fs = 4'b0000;
-    //         default:
-    //             fs = 4'b0000;
-    //     endcase
-    // end
 
     always @(*) begin
         if (opcode == `ADI ||

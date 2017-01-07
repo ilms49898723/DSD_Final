@@ -33,8 +33,9 @@ module stimulus;
     parameter delay = 1;
 
     //  Define the input and output file names
-    parameter program_code  = "01_gcd_plain-bin.dat";
-    parameter program_data  = "01_gcd_plain-data.dat";
+    parameter program_code  = `BIN;
+    parameter program_data  = `DATA;
+
     parameter sdf_file      = "risc_syn.sdf";
     parameter fsdb_syn_file = "risc_syn.fsdb";
     parameter fsdb_file     = "risc.fsdb";
@@ -133,18 +134,19 @@ module stimulus;
 
         cycle = 0;
 
-        #(400)
+        @(posedge halt)
+        #(period)
 
         $finish;
     end
 
-    always @(posedge clk) begin
-        $display("cycle = %d", cycle);
-        for (i = 0; i < 32; i = i + 1) begin
-            $display("reg[%d] = %d", i, regs[i]);
-        end
-        cycle = cycle + 1;
-    end
+    // always @(posedge clk) begin
+    //     $display("cycle = %d", cycle);
+    //     for (i = 0; i < 32; i = i + 1) begin
+    //         $display("reg[%d] = %d", i, regs[i]);
+    //     end
+    //     cycle = cycle + 1;
+    // end
 
     // `ifdef DEBUG
     //     initial begin

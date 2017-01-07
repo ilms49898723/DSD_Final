@@ -6,7 +6,7 @@ module Risc(
     // pipeline enable, 1: enable, 0: disable
     input en,
     // halt
-    output halt,
+    output reg halt,
     // register content
     output wire[31:0] reg0,
     output wire[31:0] reg1,
@@ -66,18 +66,21 @@ module Risc(
     wire[31:0] pc_if;
     wire[31:0] pc_if_wait;
     wire[31:0] pc_dof;
+    wire[31:0] pc_dof_plus_1;
     wire[31:0] pc_ex;
 
     // pipeline enable
     wire en_if;
-    wire en_if_wait;
 
     // instruction
     wire[31:0] inst_next;
     wire[31:0] inst_if;
+    wire[31:0] inst_dof_t;
     wire[31:0] inst_dof;
+    wire[31:0] inst_wb;
 
     // branch
+    wire[1:0] mc_pre;
     wire[1:0] mc;
     wire[31:0] raA;
     wire[31:0] brA;
@@ -115,6 +118,7 @@ module Risc(
     wire mb_dof;
     wire cs_dof;
 
+    wire[31:0] inst_ex;
     wire[14:0] imm_ex;
     wire[6:0] op_ex;
     wire[4:0] dr_ex;
@@ -146,6 +150,7 @@ module Risc(
     wire[31:0] busB_dof;
     wire[31:0] busB_ex;
     wire[31:0] busD;
+    wire[31:0] busDF;
 
     // inst execute output
     wire[31:0] memout_ex;
@@ -153,28 +158,35 @@ module Risc(
     wire[31:0] fout_ex;
     wire[31:0] fout_wb;
     wire overflow;
+    wire overflow_wb;
     wire carryout;
     wire negative;
+    wire negative_wb;
     wire zero;
 
     // data hazard stall
     wire ha = (~ma_dof) & (dr_ex == sa_dof) & rw_ex & (dr_ex != 5'b0);
     wire hb = (~mb_dof) & (dr_ex == sb_dof) & rw_ex & (dr_ex != 5'b0);
     wire branchTaken = mc != 2'b0;
-    wire dhs;
-    reg next_dhs;
+    wire dhs = ha | hb | branchTaken;
 
-    always @(*) begin
-        next_dhs = ha | hb | branchTaken;
+    // debugging
+    always @(posedge clk) begin
+        $display("pc_if  %d", pc_if);
+        $display("pc_ifw %d, inst_if  %b", pc_if_wait, inst_if);
+        $display("pc_dof %d, inst_dof %b", pc_dof, inst_dof);
+        $display("pc_ex  %d, inst_ex  %b", pc_ex, inst_ex);
+        $display("");
     end
-    DFlipFlop #(.width(1)) fffff(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(next_dhs), .q(dhs));
 
     // mux c for pc update
     assign mc[0] = ((ps_ex ^ zero) | bs_ex[1]) & bs_ex[0];
     assign mc[1] = bs_ex[1];
     assign pc_plus_1 = pc_if + 32'b1;
-    assign brA = pc_ex + busB_dof;
-    assign raA = busA_dof;
+    assign brA = pc_ex + busB_ex + 32'b1;
+    assign raA = busA_ex;
+
+    DFlipFlop #(.width(2)) mcPreDff(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(mc), .q(mc_pre));
 
     Mux32_41 muxC(
         .in0(pc_plus_1),
@@ -192,9 +204,9 @@ module Risc(
         .rst_n(rst_n),
         .raddr0(sa_dof),
         .raddr1(sb_dof),
-        .waddr(dr_wb),
-        .wen(rw_wb),
-        .datain(busD),
+        .waddr(dr_ex),
+        .wen(rw_ex),
+        .datain(busDF),
         .dataout0(regA),
         .dataout1(regB),
         .reg0(reg0),
@@ -241,18 +253,10 @@ module Risc(
         .q(en_if)
     );
 
-    DFlipFlop #(.width(1)) enIfWaitDff(
-        .clk(clk),
-        .rst_n(rst_n),
-        .load(1'b1),
-        .d(en_if),
-        .q(en_if_wait)
-    );
-
     DFlipFlop #(.width(32)) pcIfDFF(
         .clk(clk),
         .rst_n(rst_n),
-        .load(~dhs),
+        .load(1'b1),
         .d(pc_next),
         .q(pc_if)
     );
@@ -260,7 +264,7 @@ module Risc(
     DFlipFlop #(.width(32)) pcIfWaitDff(
         .clk(clk),
         .rst_n(rst_n),
-        .load(~dhs),
+        .load(1'b1),
         .d(pc_if),
         .q(pc_if_wait)
     );
@@ -273,33 +277,35 @@ module Risc(
         .inst(inst_next)
     );
 
-    // assign inst_if = (mc == 2'b0 && en_if_wait == 1'b1) ? inst_next : 32'b0;
+    assign inst_if = (mc == 2'b0 && mc_pre == 2'b0 && en_if == 1'b1) ? inst_next : 32'b0;
 
-    DFlipFlop #(.width(32)) instIfDFF(
-        .clk(clk),
-        .rst_n(rst_n),
-        .load(~dhs && en_if == 1'b1),
-        .d(inst_next),
-        .q(inst_if)
-    );
-
+    // DFlipFlop #(.width(32)) instIfDFF(
+    //     .clk(clk),
+    //     .rst_n(rst_n),
+    //     .load(1'b1 && en_if == 1'b1),
+    //     .d(inst_next),
+    //     .q(inst_if)
+    // );
+    //
     // --- instruction decode ---
 
     DFlipFlop #(.width(32)) instDofDFF(
         .clk(clk),
         .rst_n(rst_n),
-        .load(~dhs),
+        .load(1'b1),
         .d(inst_if),
-        .q(inst_dof)
+        .q(inst_dof_t)
     );
 
     DFlipFlop #(.width(32)) pcDofDFF(
         .clk(clk),
         .rst_n(rst_n),
-        .load(~dhs),
+        .load(1'b1),
         .d(pc_if_wait),
         .q(pc_dof)
     );
+
+    assign inst_dof = (mc == 2'b0) ? inst_dof_t : 32'b0;
 
     InstDecode instDecode(
         .inst(inst_dof),
@@ -320,41 +326,46 @@ module Risc(
         .cs(cs_dof_t)
     );
 
-    assign imm_dof = (dhs == 1'b0) ? imm_dof_t : 15'b0;
-    assign op_dof = (dhs == 1'b0) ? op_dof_t : 7'b0;
-    assign dr_dof = (dhs == 1'b0) ? dr_dof_t : 5'b0;
-    assign sa_dof = (dhs == 1'b0) ? sa_dof_t : 5'b0;
-    assign sb_dof = (dhs == 1'b0) ? sb_dof_t : 5'b0;
-    assign sh_dof = (dhs == 1'b0) ? sh_dof_t : 5'b0;
-    assign fs_dof = (dhs == 1'b0) ? fs_dof_t : 4'b0;
-    assign md_dof = (dhs == 1'b0) ? md_dof_t : 2'b0;
-    assign bs_dof = (dhs == 1'b0) ? bs_dof_t : 2'b0;
-    assign ps_dof = (dhs == 1'b0) ? ps_dof_t : 1'b0;
-    assign rw_dof = (dhs == 1'b0) ? rw_dof_t : 1'b0;
-    assign mw_dof = (dhs == 1'b0) ? mw_dof_t : 1'b0;
-    assign ma_dof = (dhs == 1'b0) ? ma_dof_t : 1'b0;
-    assign mb_dof = (dhs == 1'b0) ? mb_dof_t : 1'b0;
-    assign cs_dof = (dhs == 1'b0) ? cs_dof_t : 1'b0;
+    assign imm_dof = (mc == 2'b0) ? imm_dof_t : 15'b0;
+    assign op_dof = (mc == 2'b0) ? op_dof_t : 7'b0;
+    assign dr_dof = (mc == 2'b0) ? dr_dof_t : 5'b0;
+    assign sa_dof = (mc == 2'b0) ? sa_dof_t : 5'b0;
+    assign sb_dof = (mc == 2'b0) ? sb_dof_t : 5'b0;
+    assign sh_dof = (mc == 2'b0) ? sh_dof_t : 5'b0;
+    assign fs_dof = (mc == 2'b0) ? fs_dof_t : 4'b0;
+    assign md_dof = (mc == 2'b0) ? md_dof_t : 2'b0;
+    assign bs_dof = (mc == 2'b0) ? bs_dof_t : 2'b0;
+    assign ps_dof = (mc == 2'b0) ? ps_dof_t : 1'b0;
+    assign rw_dof = (mc == 2'b0) ? rw_dof_t : 1'b0;
+    assign mw_dof = (mc == 2'b0) ? mw_dof_t : 1'b0;
+    assign ma_dof = (mc == 2'b0) ? ma_dof_t : 1'b0;
+    assign mb_dof = (mc == 2'b0) ? mb_dof_t : 1'b0;
+    assign cs_dof = (mc == 2'b0) ? cs_dof_t : 1'b0;
 
     ConstantUnit constantUnit(.in(imm_dof), .cs(cs_dof), .out(constant));
 
-    Mux32_21 muxA(
+    assign pc_dof_plus_1 = pc_dof + 1'b1;
+
+    Mux32_31 muxA(
         .in0(regA),
-        .in1(pc_dof),
-        .sel(ma_dof),
+        .in1(pc_dof_plus_1),
+        .in2(busDF),
+        .sel({ha, ma_dof}),
         .out(busA_dof)
     );
 
-    Mux32_21 muxB(
+    Mux32_31 muxB(
         .in0(regB),
         .in1(constant),
-        .sel(mb_dof),
+        .in2(busDF),
+        .sel({hb, mb_dof}),
         .out(busB_dof)
     );
 
     // --- execute ---
 
     DFlipFlop #(.width(32)) pcExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(pc_dof), .q(pc_ex));
+    DFlipFlop #(.width(32)) instExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(inst_dof), .q(inst_ex));
 
     DFlipFlop #(.width(32)) busAExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(busA_dof), .q(busA_ex));
     DFlipFlop #(.width(32)) busBExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(busB_dof), .q(busB_ex));
@@ -382,7 +393,9 @@ module Risc(
         .opcode(op_ex),
         .fs(fs_ex),
         .sh(sh_ex),
-        .mw(mw_ex),
+        .mw(mw_dof),
+        .memaddr(busA_dof),
+        .memdatain(busB_dof),
         .memout(memout_ex),
         .fout(fout_ex),
         .overflow(overflow),
@@ -391,20 +404,43 @@ module Risc(
         .zero(zero)
     );
 
+    Mux32_31 muxDForwarding(
+        .in0(fout_ex),
+        .in1(memout_ex),
+        .in2({31'b0, negative ^ overflow}),
+        .sel(md_ex),
+        .out(busDF)
+    );
+
     // --- write back ---
 
+    DFlipFlop #(.width(32)) instWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(inst_ex), .q(inst_wb));
     DFlipFlop #(.width(32)) foutWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(fout_ex), .q(fout_wb));
     DFlipFlop #(.width(32)) memoutWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(memout_ex), .q(memout_wb));
     DFlipFlop #(.width(5)) drWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(dr_ex), .q(dr_wb));
     DFlipFlop #(.width(2)) mdWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(md_ex), .q(md_wb));
     DFlipFlop #(.width(1)) rwWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(rw_ex), .q(rw_wb));
+    DFlipFlop #(.width(1)) ovWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(overflow), .q(overflow_wb));
+    DFlipFlop #(.width(1)) neWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(negative), .q(negative_wb));
 
     Mux32_31 muxD(
         .in0(fout_wb),
         .in1(memout_wb),
-        .in2({31'b0, negative ^ overflow}),
+        .in2({31'b0, negative_wb ^ overflow_wb}),
         .sel(md_wb),
         .out(busD)
     );
 
+    // --- pipeline halt ---
+    // pipeline halt signal
+    always @(posedge clk) begin
+        if (inst_if == 32'hffffffff &&
+            inst_dof == 32'hffffffff &&
+            inst_ex == 32'hffffffff &&
+            inst_wb == 32'hffffffff) begin
+            halt = 1'b1;
+        end else begin
+            halt = 1'b0;
+        end
+    end
 endmodule
