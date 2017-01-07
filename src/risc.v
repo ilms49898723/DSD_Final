@@ -67,7 +67,15 @@ module Risc(
     wire[31:0] pc_ex;
 
     // pipeline enable
-    wire en_if;
+    reg enable;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (rst_n == 1'b0) begin
+            enable <= 1'b0;
+        end else begin
+            enable <= 1'b1;
+        end
+    end
 
     // instruction
     wire[31:0] inst_next;
@@ -242,14 +250,6 @@ module Risc(
 
     // --- instruction fetch ---
 
-    DFlipFlop_1 enIfDFF(
-        .clk(clk),
-        .rst_n(rst_n),
-        .load(1'b1),
-        .d(en),
-        .q(en_if)
-    );
-
     DFlipFlop_32 pcIfDFF(
         .clk(clk),
         .rst_n(rst_n),
@@ -272,16 +272,8 @@ module Risc(
         .inst(inst_next)
     );
 
-    assign inst_if = (mc == 2'b0 && mc_pre == 2'b0 && en_if == 1'b1) ? inst_next : 32'b0;
+    assign inst_if = (mc == 2'b0 && mc_pre == 2'b0 && enable == 1'b1) ? inst_next : 32'b0;
 
-    // DFlipFlop_32 instIfDFF(
-    //     .clk(clk),
-    //     .rst_n(rst_n),
-    //     .load(1'b1 && en_if == 1'b1),
-    //     .d(inst_next),
-    //     .q(inst_if)
-    // );
-    //
     // --- instruction decode ---
 
     DFlipFlop_32 instDofDFF(

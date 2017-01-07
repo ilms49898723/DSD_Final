@@ -31,6 +31,11 @@
 `define BIN16  "./test/16_ldst_bin.dat"
 `define DATA16 "./test/16_ldst_data.dat"
 
+`ifndef NCV
+`define BIN `BIN01
+`define DATA `DATA01
+`endif
+
 `ifdef R01
 `define BIN `BIN01
 `define DATA `DATA01
