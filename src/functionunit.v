@@ -71,12 +71,12 @@ module FunctionUnit(
                 {carryout, fout} = b;
             end
             4'b1101: begin
-                right_b = b;
-                {carryout, fout} = a << b;
+                right_b = 32'b0;
+                {carryout, fout} = a << sh;
             end
             4'b1110: begin
-                right_b = b;
-                {carryout, fout} = a >> b;
+                right_b = 32'b0;
+                {carryout, fout} = a >> sh;
             end
             4'b1111: begin
                 right_b = 32'b0;
