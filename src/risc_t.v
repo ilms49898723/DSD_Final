@@ -53,14 +53,7 @@ module stimulus;
     wire halt;
     wire[31:0] regs[0:31];
 
-    Risc
-`ifndef SYNTHESIS
-    #(
-        .program_code(program_code),
-        .program_data(program_data)
-    )
-`endif
-    risc(
+    Risc risc(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
@@ -129,7 +122,7 @@ module stimulus;
         en = 1'b0;
         rst_n = 1'b1;
 
-        #(period)
+        #(period/2)
         rst_n = 1'b0;
 
         #(period)
