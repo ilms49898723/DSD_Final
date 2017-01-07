@@ -1,0 +1,24 @@
+# Read verilog module
+read_file -format verilog { ../src/risc.v ../src/opcode.v ../src/constantunit.v ../src/dflipflop.v ../src/functionunit.v ../src/header.v ../src/instdecoder.v ../src/instexecute.v ../src/instfetch.v ../src/mux32_31.v ../src/mux32_41.v ../src/registerfile.v ../src/testdata.v }
+# analyze dff
+analyze -library WORK -format verilog ../src/dflipflop.v
+# link
+link
+# clock
+create_clock "clk" -period 20 -waveform {0 10}
+set_fix_hold clk
+set_dont_touch_network clk
+# check design
+check_design
+# compile
+compile
+# Save
+write -format verilog -hierarchy -output risc_syn.v
+# sdf
+write_sdf -version 1.0 -context verilog risc_syn.sdf
+# area
+report_area -hierarchy > area_report.txt
+# timing
+report_timing > timing_report.txt
+# power
+report_power > power_report.txt
