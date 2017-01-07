@@ -185,26 +185,4 @@ module InstDecode(
             cs = 1'b0;
         end
     end
-
-    always @(*) begin
-        if (opcode == `BZ  ||
-            opcode == `BNZ) begin
-            bs = 2'b01;
-        end else if (opcode == `JMR) begin
-            bs = 2'b10;
-        end else if (opcode == `JMP ||
-            opcode == `JML) begin
-            bs = 2'b11;
-        end else begin
-            bs = 2'b00;
-        end
-    end
-
-    always @(*) begin
-        if (opcode == `BNZ) begin
-            ps = 1'b1;
-        end else begin
-            ps = 1'b0;
-        end
-    end
 endmodule
