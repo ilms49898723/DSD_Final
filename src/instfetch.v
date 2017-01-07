@@ -4,8 +4,6 @@ module InstFetch(
     output[31:0] inst
 );
 
-    parameter program_code = "01_gcd_plain-bin.dat";
-
     // I memory signals
     wire im_cen;
     wire im_wen;
@@ -27,7 +25,7 @@ module InstFetch(
     end
 
     RAM2Kx32 #(
-        .preload_file(program_code)
+        .preload_file(`BIN)
     ) iMem (
         .Q(im_dataout),
         .CLK(clk),

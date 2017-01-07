@@ -42,9 +42,6 @@ module Risc(
     output wire[31:0] reg31
 );
 
-    parameter program_code = "01_gcd_plain-bin.dat";
-    parameter program_data = "01_gcd_plain-data.dat";
-
     // pipeline dff include:
     // 1. ALU output
     // 2. pc
@@ -186,7 +183,7 @@ module Risc(
     assign brA = pc_ex + busB_ex + 32'b1;
     assign raA = busA_ex;
 
-    DFlipFlop #(.width(2)) mcPreDff(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(mc), .q(mc_pre));
+    DFlipFlop_2 mcPreDff(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(mc), .q(mc_pre));
 
     Mux32_41 muxC(
         .in0(pc_plus_1),
@@ -245,7 +242,7 @@ module Risc(
 
     // --- instruction fetch ---
 
-    DFlipFlop #(.width(1)) enIfDFF(
+    DFlipFlop_1 enIfDFF(
         .clk(clk),
         .rst_n(rst_n),
         .load(1'b1),
@@ -253,7 +250,7 @@ module Risc(
         .q(en_if)
     );
 
-    DFlipFlop #(.width(32)) pcIfDFF(
+    DFlipFlop_32 pcIfDFF(
         .clk(clk),
         .rst_n(rst_n),
         .load(1'b1),
@@ -261,7 +258,7 @@ module Risc(
         .q(pc_if)
     );
 
-    DFlipFlop #(.width(32)) pcIfWaitDff(
+    DFlipFlop_32 pcIfWaitDff(
         .clk(clk),
         .rst_n(rst_n),
         .load(1'b1),
@@ -269,9 +266,7 @@ module Risc(
         .q(pc_if_wait)
     );
 
-    InstFetch #(
-        .program_code(program_code)
-    ) instFetch(
+    InstFetch instFetch(
         .clk(clk),
         .pc(pc_if),
         .inst(inst_next)
@@ -279,7 +274,7 @@ module Risc(
 
     assign inst_if = (mc == 2'b0 && mc_pre == 2'b0 && en_if == 1'b1) ? inst_next : 32'b0;
 
-    // DFlipFlop #(.width(32)) instIfDFF(
+    // DFlipFlop_32 instIfDFF(
     //     .clk(clk),
     //     .rst_n(rst_n),
     //     .load(1'b1 && en_if == 1'b1),
@@ -289,7 +284,7 @@ module Risc(
     //
     // --- instruction decode ---
 
-    DFlipFlop #(.width(32)) instDofDFF(
+    DFlipFlop_32 instDofDFF(
         .clk(clk),
         .rst_n(rst_n),
         .load(1'b1),
@@ -297,7 +292,7 @@ module Risc(
         .q(inst_dof_t)
     );
 
-    DFlipFlop #(.width(32)) pcDofDFF(
+    DFlipFlop_32 pcDofDFF(
         .clk(clk),
         .rst_n(rst_n),
         .load(1'b1),
@@ -364,29 +359,27 @@ module Risc(
 
     // --- execute ---
 
-    DFlipFlop #(.width(32)) pcExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(pc_dof), .q(pc_ex));
-    DFlipFlop #(.width(32)) instExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(inst_dof), .q(inst_ex));
+    DFlipFlop_32 pcExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(pc_dof), .q(pc_ex));
+    DFlipFlop_32 instExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(inst_dof), .q(inst_ex));
 
-    DFlipFlop #(.width(32)) busAExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(busA_dof), .q(busA_ex));
-    DFlipFlop #(.width(32)) busBExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(busB_dof), .q(busB_ex));
+    DFlipFlop_32 busAExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(busA_dof), .q(busA_ex));
+    DFlipFlop_32 busBExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(busB_dof), .q(busB_ex));
 
-    DFlipFlop #(.width(7)) opExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(op_dof), .q(op_ex));
-    DFlipFlop #(.width(5)) drExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(dr_dof), .q(dr_ex));
-    DFlipFlop #(.width(5)) saExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(sa_dof), .q(sa_ex));
-    DFlipFlop #(.width(5)) sbExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(sb_dof), .q(sb_ex));
-    DFlipFlop #(.width(5)) shExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(sh_dof), .q(sh_ex));
-    DFlipFlop #(.width(4)) fsExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(fs_dof), .q(fs_ex));
-    DFlipFlop #(.width(2)) mdExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(md_dof), .q(md_ex));
-    DFlipFlop #(.width(2)) bsExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(bs_dof), .q(bs_ex));
-    DFlipFlop #(.width(1)) psExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(ps_dof), .q(ps_ex));
-    DFlipFlop #(.width(1)) rwExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(rw_dof), .q(rw_ex));
-    DFlipFlop #(.width(1)) mwExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(mw_dof), .q(mw_ex));
-    DFlipFlop #(.width(1)) maExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(ma_dof), .q(ma_ex));
-    DFlipFlop #(.width(1)) mbExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(mb_dof), .q(mb_ex));
+    DFlipFlop_7 opExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(op_dof), .q(op_ex));
+    DFlipFlop_5 drExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(dr_dof), .q(dr_ex));
+    DFlipFlop_5 saExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(sa_dof), .q(sa_ex));
+    DFlipFlop_5 sbExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(sb_dof), .q(sb_ex));
+    DFlipFlop_5 shExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(sh_dof), .q(sh_ex));
+    DFlipFlop_4 fsExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(fs_dof), .q(fs_ex));
+    DFlipFlop_2 mdExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(md_dof), .q(md_ex));
+    DFlipFlop_2 bsExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(bs_dof), .q(bs_ex));
+    DFlipFlop_1 psExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(ps_dof), .q(ps_ex));
+    DFlipFlop_1 rwExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(rw_dof), .q(rw_ex));
+    DFlipFlop_1 mwExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(mw_dof), .q(mw_ex));
+    DFlipFlop_1 maExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(ma_dof), .q(ma_ex));
+    DFlipFlop_1 mbExDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(mb_dof), .q(mb_ex));
 
-    InstExecute #(
-        .program_data(program_data)
-    ) instExecute(
+    InstExecute instExecute(
         .clk(clk),
         .busA(busA_ex),
         .busB(busB_ex),
@@ -414,14 +407,14 @@ module Risc(
 
     // --- write back ---
 
-    DFlipFlop #(.width(32)) instWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(inst_ex), .q(inst_wb));
-    DFlipFlop #(.width(32)) foutWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(fout_ex), .q(fout_wb));
-    DFlipFlop #(.width(32)) memoutWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(memout_ex), .q(memout_wb));
-    DFlipFlop #(.width(5)) drWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(dr_ex), .q(dr_wb));
-    DFlipFlop #(.width(2)) mdWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(md_ex), .q(md_wb));
-    DFlipFlop #(.width(1)) rwWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(rw_ex), .q(rw_wb));
-    DFlipFlop #(.width(1)) ovWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(overflow), .q(overflow_wb));
-    DFlipFlop #(.width(1)) neWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(negative), .q(negative_wb));
+    DFlipFlop_32 instWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(inst_ex), .q(inst_wb));
+    DFlipFlop_32 foutWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(fout_ex), .q(fout_wb));
+    DFlipFlop_32 memoutWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(memout_ex), .q(memout_wb));
+    DFlipFlop_5 drWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(dr_ex), .q(dr_wb));
+    DFlipFlop_2 mdWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(md_ex), .q(md_wb));
+    DFlipFlop_1 rwWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(rw_ex), .q(rw_wb));
+    DFlipFlop_1 ovWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(overflow), .q(overflow_wb));
+    DFlipFlop_1 neWbDFF(.clk(clk), .rst_n(rst_n), .load(1'b1), .d(negative), .q(negative_wb));
 
     Mux32_31 muxD(
         .in0(fout_wb),
