@@ -1,11 +1,7 @@
 # Read verilog module
-read_file -format verilog { ../src/risc.v ../src/opcode.v ../src/constantunit.v ../src/dflipflop.v ../src/functionunit.v ../src/header.v ../src/instdecoder.v ../src/instexecute.v ../src/instfetch.v ../src/mux32_31.v ../src/mux32_41.v ../src/registerfile.v ../src/testdata.v }
-# analyze dff
-analyze -library WORK -format verilog ../src/dflipflop.v
-# link
-link
+read_file -format verilog { ../src/risc.v ../src/testdata.v ../src/opcode.v ../src/constantunit.v ../src/dflipflop.v ../src/functionunit.v ../src/header.v ../src/instdecoder.v ../src/instexecute.v ../src/instfetch.v ../src/mux32_31.v ../src/mux32_41.v ../src/registerfile.v }
 # clock
-create_clock "clk" -period 20 -waveform {0 10}
+create_clock -name "clk" -period 20 -waveform { 0 10 } { clk }
 set_fix_hold clk
 set_dont_touch_network clk
 # check design
