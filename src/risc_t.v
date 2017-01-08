@@ -131,8 +131,8 @@ module stimulus;
 
         cycle = 0;
 
-        @(posedge halt)
-        #(period)
+        // @(posedge halt)
+        #(period * 100)
 
         $finish;
     end

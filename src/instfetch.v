@@ -1,5 +1,6 @@
 module InstFetch(
     input clk,
+    input iclk,
     input[31:0] pc,
     output[31:0] inst
 );
@@ -19,7 +20,7 @@ module InstFetch(
 
     assign inst = im_dataout;
 
-    always @(posedge clk) begin
+    always @(posedge iclk) begin
         #(1)
         im_addr <= pc[10:0];
     end
@@ -28,7 +29,7 @@ module InstFetch(
         .preload_file(`BIN)
     ) iMem (
         .Q(im_dataout),
-        .CLK(clk),
+        .CLK(iclk),
         .CEN(im_cen),
         .WEN(im_wen),
         .A(im_addr),

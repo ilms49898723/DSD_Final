@@ -1,5 +1,6 @@
 module InstExecute(
     input clk,
+    input dclk,
     input[31:0] busA,
     input[31:0] busB,
     input[6:0] opcode,
@@ -31,7 +32,7 @@ module InstExecute(
 
     assign memout = dm_dataout;
 
-    always @(posedge clk) begin
+    always @(posedge dclk) begin
         #(1)
         dm_wen <= ~mw;
         dm_addr <= memaddr[10:0];
@@ -42,7 +43,7 @@ module InstExecute(
         .preload_file(`DATA)
     ) dMem (
         .Q(dm_dataout),
-        .CLK(clk),
+        .CLK(dclk),
         .CEN(dm_cen),
         .WEN(dm_wen),
         .A(dm_addr),

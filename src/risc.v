@@ -68,12 +68,25 @@ module Risc(
 
     // pipeline enable
     reg enable;
+    reg enable_pipeline;
 
     always @(posedge clk or negedge rst_n) begin
         if (rst_n == 1'b0) begin
             enable <= 1'b0;
         end else begin
             enable <= 1'b1;
+        end
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if (rst_n == 1'b0) begin
+            enable_pipeline <= 1'b0;
+        end else begin
+            if (enable == 1'b1) begin
+                enable_pipeline <= 1'b1;
+            end else begin
+                enable_pipeline <= 1'b0;
+            end
         end
     end
 
@@ -253,7 +266,7 @@ module Risc(
     DFlipFlop_32 pcIfDFF(
         .clk(clk),
         .rst_n(rst_n),
-        .load(1'b1),
+        .load(enable),
         .d(pc_next),
         .q(pc_if)
     );
@@ -261,18 +274,19 @@ module Risc(
     DFlipFlop_32 pcIfWaitDff(
         .clk(clk),
         .rst_n(rst_n),
-        .load(1'b1),
+        .load(enable),
         .d(pc_if),
         .q(pc_if_wait)
     );
 
     InstFetch instFetch(
         .clk(clk),
+        .iclk(~clk),
         .pc(pc_if),
         .inst(inst_next)
     );
 
-    assign inst_if = (mc == 2'b0 && mc_pre == 2'b0 && enable == 1'b1) ? inst_next : 32'b0;
+    assign inst_if = (mc == 2'b0 && mc_pre == 2'b0 && enable_pipeline == 1'b1) ? inst_next : 32'b0;
 
     // --- instruction decode ---
 
@@ -373,6 +387,7 @@ module Risc(
 
     InstExecute instExecute(
         .clk(clk),
+        .dclk(~clk),
         .busA(busA_ex),
         .busB(busB_ex),
         .opcode(op_ex),
