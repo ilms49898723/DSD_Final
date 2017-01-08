@@ -5,11 +5,11 @@ module Risc(
     input rst_n,
     // halt
     output reg halt,
-    // instruction output (pipeline)
-    output wire[31:0] inst_if_out,
-    output wire[31:0] inst_dof_out,
-    output wire[31:0] inst_ex_out,
-    output wire[31:0] inst_wb_out,
+    // instruction
+    output wire[31:0] inst_if,
+    output wire[31:0] inst_dof,
+    output wire[31:0] inst_ex,
+    output wire[31:0] inst_wb,
     // register content
     output wire[31:0] reg0,
     output wire[31:0] reg1,
@@ -95,10 +95,7 @@ module Risc(
 
     // instruction
     wire[31:0] inst_next;
-    wire[31:0] inst_if;
     wire[31:0] inst_dof_t;
-    wire[31:0] inst_dof;
-    wire[31:0] inst_wb;
 
     // branch
     wire[1:0] mc_pre;
@@ -139,7 +136,6 @@ module Risc(
     wire mb_dof;
     wire cs_dof;
 
-    wire[31:0] inst_ex;
     wire[14:0] imm_ex;
     wire[6:0] op_ex;
     wire[4:0] dr_ex;
@@ -184,12 +180,6 @@ module Risc(
     wire negative;
     wire negative_wb;
     wire zero;
-
-    // instruction output
-    assign inst_if_out = inst_if;
-    assign inst_dof_out = inst_dof;
-    assign inst_ex_out = inst_ex;
-    assign inst_wb_out = inst_wb;
 
     // data hazard stall
     wire ha = (~ma_dof) & (dr_ex == sa_dof) & rw_ex & (dr_ex != 5'b0);

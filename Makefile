@@ -15,7 +15,6 @@ MYSRC      := ./$(SRCDIR)/opcode.v \
 			  ./$(SRCDIR)/instdecoder.v \
 			  ./$(SRCDIR)/instexecute.v \
 			  ./$(SRCDIR)/instfetch.v \
-			  ./$(SRCDIR)/mux32_21.v \
 			  ./$(SRCDIR)/mux32_31.v \
 			  ./$(SRCDIR)/mux32_41.v \
 			  ./$(SRCDIR)/registerfile.v \
