@@ -49,15 +49,21 @@ module stimulus;
 
     reg clk;
     reg rst_n;
-    reg en;
     wire halt;
+    wire[31:0] inst_if;
+    wire[31:0] inst_dof;
+    wire[31:0] inst_ex;
+    wire[31:0] inst_wb;
     wire[31:0] regs[0:31];
 
     Risc risc(
         .clk(clk),
         .rst_n(rst_n),
-        .en(en),
         .halt(halt),
+        .inst_if_out(inst_if),
+        .inst_dof_out(inst_dof),
+        .inst_ex_out(inst_ex),
+        .inst_wb_out(inst_wb),
         .reg0(regs[0]),
         .reg1(regs[1]),
         .reg2(regs[2]),
@@ -119,7 +125,6 @@ module stimulus;
         // initialization
 
         clk = 1'b1;
-        en = 1'b0;
         rst_n = 1'b1;
 
         #(period/2)
@@ -127,7 +132,6 @@ module stimulus;
 
         #(period)
         rst_n = 1'b1;
-        en = 1'b1;
 
         cycle = 0;
 
