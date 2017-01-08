@@ -56,13 +56,13 @@ RM         := rm -rf
 all : check
 
 sim :
-	$(VLOG) $(SRC) $(VLOGARG) +define+R$(R)
+	$(VLOG) $(SRC) $(VLOGARG) +define+R$(R) +define+NCV
 
 check :
-	$(VLOG) $(SRC) $(VLOGARG) -c +define+R$(R)
+	$(VLOG) $(SRC) $(VLOGARG) -c +define+R$(R) +define+NCV
 
 syn :
-	$(VLOG) $(SYNSRC) $(VLOGARG) +define+R$(R) +define+SYNTHESIS +define+NETLIST +nctimescale+1ns/1ps
+	$(VLOG) $(SYNSRC) $(VLOGARG) +define+R$(R) +define+SYNTHESIS +define+NETLIST +define+NCV +nctimescale+1ns/1ps
 
 clean :
 	-$(RM) $(DBFILE) $(TMPFILE)

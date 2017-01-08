@@ -189,13 +189,13 @@ module Risc(
     wire dhs = ha | hb | branchTaken;
 
     // debugging
-    always @(posedge clk) begin
-        $display("pc_if  %d", pc_if);
-        $display("pc_ifw %d, inst_if  %b", pc_if_wait, inst_if);
-        $display("pc_dof %d, inst_dof %b", pc_dof, inst_dof);
-        $display("pc_ex  %d, inst_ex  %b", pc_ex, inst_ex);
-        $display("");
-    end
+    // always @(posedge clk) begin
+    //     $display("pc_if  %d", pc_if);
+    //     $display("pc_ifw %d, inst_if  %b", pc_if_wait, inst_if);
+    //     $display("pc_dof %d, inst_dof %b", pc_dof, inst_dof);
+    //     $display("pc_ex  %d, inst_ex  %b", pc_ex, inst_ex);
+    //     $display("");
+    // end
 
     // mux c for pc update
     assign mc[0] = ((ps_ex ^ zero) | bs_ex[1]) & bs_ex[0];

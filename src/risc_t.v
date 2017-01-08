@@ -137,13 +137,10 @@ module stimulus;
         $finish;
     end
 
-    // always @(posedge clk) begin
-    //     $display("cycle = %d", cycle);
-    //     for (i = 0; i < 32; i = i + 1) begin
-    //         $display("reg[%d] = %d", i, regs[i]);
-    //     end
-    //     cycle = cycle + 1;
-    // end
+    always @(posedge clk) begin
+        $display("cycle %d, r1 %d, r2 %d, r3 %d", cycle, regs[1], regs[2], regs[3]);
+        cycle = cycle + 1;
+    end
 
     // `ifdef DEBUG
     //     initial begin
