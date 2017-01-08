@@ -1,6 +1,7 @@
 #   1. Virtual Library Setup for NTHU VLSI/CAD Lab (V2015-2)
 #   2. Copy this file synopsys_dc.setup to .synopsys_dc.setup
 #      and put it in tool's invoking directory or home.
+
 set company "NTHU"
 set designer "Tony Stark"
 set search_path       ". /theda21_2/CBDK_IC_Contest/cur/SynopsysDC/db $search_path"
@@ -26,7 +27,5 @@ set hdlin_translate_off_skip_text "TRUE"
 set edifout_netlist_only "TRUE"
 set plot_command {lpr -Plp}
 
-set view_script_submenu_items [list {Avoid assign statement} {set_fix_multiple_p
-ort_nets -all -buffer_constant} {Change Naming Rule} {change_names -rule verilog
- -hierarchy} {Write SDF} {write_sdf -version 2.1 -context verilog risc.sdf}]
+set view_script_submenu_items [list {Avoid assign statement} {set_fix_multiple_port_nets -all -buffer_constant} {Change Naming Rule} {change_names -rule verilog -hierarchy} {Write SDF} {write_sdf -version 1.0 -context verilog risc_syn.sdf}]
 
