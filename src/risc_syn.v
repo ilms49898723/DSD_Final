@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////
 // Created by: Synopsys DC Expert(TM) in wire load mode
 // Version   : K-2015.06-SP1
-// Date      : Sun Jan  8 09:12:41 2017
+// Date      : Sun Jan  8 09:24:03 2017
 /////////////////////////////////////////////////////////////
 
 
@@ -9675,15 +9675,15 @@ module Risc_DW01_inc_1 ( A, SUM );
 endmodule
 
 
-module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
-        inst_wb_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7, reg8,
-        reg9, reg10, reg11, reg12, reg13, reg14, reg15, reg16, reg17, reg18,
-        reg19, reg20, reg21, reg22, reg23, reg24, reg25, reg26, reg27, reg28,
-        reg29, reg30, reg31 );
-  output [31:0] inst_if_out;
-  output [31:0] inst_dof_out;
-  output [31:0] inst_ex_out;
-  output [31:0] inst_wb_out;
+module Risc ( clk, rst_n, halt, inst_if, inst_dof, inst_ex, inst_wb, reg0,
+        reg1, reg2, reg3, reg4, reg5, reg6, reg7, reg8, reg9, reg10, reg11,
+        reg12, reg13, reg14, reg15, reg16, reg17, reg18, reg19, reg20, reg21,
+        reg22, reg23, reg24, reg25, reg26, reg27, reg28, reg29, reg30, reg31
+ );
+  output [31:0] inst_if;
+  output [31:0] inst_dof;
+  output [31:0] inst_ex;
+  output [31:0] inst_wb;
   output [31:0] reg0;
   output [31:0] reg1;
   output [31:0] reg2;
@@ -9801,10 +9801,11 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
         pc_if), .q(pc_if_wait) );
   InstFetch instFetch ( .clk(clk), .iclk(_1_net_), .pc(pc_if), .inst(inst_next) );
   DFlipFlop_32_41 instDofDFF ( .clk(clk), .rst_n(rst_n), .load(1'b1), .d(
-        inst_if_out), .q(inst_dof_t) );
+        inst_if), .q(inst_dof_t) );
   DFlipFlop_32_40 pcDofDFF ( .clk(clk), .rst_n(rst_n), .load(1'b1), .d(
         pc_if_wait), .q(pc_dof) );
-  InstDecode instDecode ( .inst({inst_dof_out[31:16], n185, inst_dof_out[14:0]}), .opcode(op_dof_t), .dr(dr_dof_t), .sa(sa_dof_t), .sb({sb_dof_t[4:3],
+  InstDecode instDecode ( .inst({inst_dof[31:16], n185, inst_dof[14:0]}),
+        .opcode(op_dof_t), .dr(dr_dof_t), .sa(sa_dof_t), .sb({sb_dof_t[4:3],
         SYNOPSYS_UNCONNECTED__0, sb_dof_t[1:0]}), .imm(imm_dof_t), .sh(
         sh_dof_t), .rw(rw_dof_t), .md(md_dof_t), .bs(bs_dof_t), .ps(ps_dof_t),
         .mw(mw_dof_t), .fs(fs_dof_t), .ma(ma_dof_t), .mb(mb_dof_t), .cs(
@@ -9817,7 +9818,7 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   DFlipFlop_32_39 pcExDFF ( .clk(clk), .rst_n(rst_n), .load(1'b1), .d(pc_dof),
         .q(pc_ex) );
   DFlipFlop_32_38 instExDFF ( .clk(clk), .rst_n(rst_n), .load(1'b1), .d(
-        inst_dof_out), .q(inst_ex_out) );
+        inst_dof), .q(inst_ex) );
   DFlipFlop_32_37 busAExDFF ( .clk(clk), .rst_n(rst_n), .load(1'b1), .d(
         busA_dof), .q(raA) );
   DFlipFlop_32_36 busBExDFF ( .clk(clk), .rst_n(rst_n), .load(1'b1), .d(
@@ -9854,7 +9855,7 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
         1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0,
         1'b0, 1'b0, 1'b0, 1'b0, 1'b0, \_24_net_[0] }), .sel(md_ex), .out(busDF) );
   DFlipFlop_32_35 instWbDFF ( .clk(clk), .rst_n(rst_n), .load(1'b1), .d(
-        inst_ex_out), .q(inst_wb_out) );
+        inst_ex), .q(inst_wb) );
   DFlipFlop_32_34 foutWbDFF ( .clk(clk), .rst_n(rst_n), .load(1'b1), .d(
         fout_ex), .q(fout_wb) );
   DFlipFlop_32_33 memoutWbDFF ( .clk(clk), .rst_n(rst_n), .load(1'b1), .d(
@@ -9871,24 +9872,24 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
         1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0,
         1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0,
         1'b0, 1'b0, 1'b0, 1'b0, \_33_net_[0] }), .sel(md_wb) );
-  Risc_DW01_inc_0 add_357 ( .A(pc_dof), .SUM(pc_dof_plus_1) );
-  Risc_DW01_add_0 add_1_root_add_213_2 ( .A(pc_ex), .B(busB_ex), .CI(1'b1),
+  Risc_DW01_inc_0 add_347 ( .A(pc_dof), .SUM(pc_dof_plus_1) );
+  Risc_DW01_add_0 add_1_root_add_203_2 ( .A(pc_ex), .B(busB_ex), .CI(1'b1),
         .SUM(brA) );
-  Risc_DW01_inc_1 add_212 ( .A(pc_if), .SUM(pc_plus_1) );
+  Risc_DW01_inc_1 add_202 ( .A(pc_if), .SUM(pc_plus_1) );
   DFFRX1 enable_pipeline_reg ( .D(enable), .CK(clk), .RN(rst_n), .Q(
         enable_pipeline) );
   DFFRX1 enable_reg ( .D(1'b1), .CK(clk), .RN(rst_n), .Q(enable) );
   DFFQX1 halt_reg ( .D(N70), .CK(clk), .Q(halt) );
-  CLKAND2X2 U231 ( .A(inst_dof_t[25]), .B(n55), .Y(inst_dof_out[25]) );
+  CLKAND2X2 U231 ( .A(inst_dof_t[25]), .B(n55), .Y(inst_dof[25]) );
   NOR2X8 U232 ( .A(mc[1]), .B(mc[0]), .Y(n55) );
   CLKAND2X3 U233 ( .A(sb_dof_t[1]), .B(n55), .Y(sb_dof[1]) );
   NOR2X6 U234 ( .A(mc[1]), .B(n95), .Y(n116) );
   INVX4 U235 ( .A(\bs_ex[0] ), .Y(n117) );
   NOR2X8 U236 ( .A(n116), .B(n117), .Y(mc[0]) );
-  CLKAND2X2 U237 ( .A(inst_dof_t[30]), .B(n118), .Y(inst_dof_out[30]) );
-  CLKAND2X2 U238 ( .A(inst_dof_t[27]), .B(n140), .Y(inst_dof_out[27]) );
-  CLKAND2X2 U239 ( .A(inst_dof_t[29]), .B(n55), .Y(inst_dof_out[29]) );
-  CLKAND2X2 U240 ( .A(inst_dof_t[31]), .B(n55), .Y(inst_dof_out[31]) );
+  CLKAND2X2 U237 ( .A(inst_dof_t[30]), .B(n118), .Y(inst_dof[30]) );
+  CLKAND2X2 U238 ( .A(inst_dof_t[27]), .B(n140), .Y(inst_dof[27]) );
+  CLKAND2X2 U239 ( .A(inst_dof_t[29]), .B(n55), .Y(inst_dof[29]) );
+  CLKAND2X2 U240 ( .A(inst_dof_t[31]), .B(n55), .Y(inst_dof[31]) );
   CLKBUFX2 U241 ( .A(n55), .Y(n140) );
   AND2X2 U242 ( .A(sb_dof_t[3]), .B(n118), .Y(sb_dof[3]) );
   INVX1 U243 ( .A(n145), .Y(n120) );
@@ -9910,14 +9911,14 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   CLKAND2X3 U259 ( .A(ma_dof_t), .B(n121), .Y(ma_dof) );
   CLKINVX2 U260 ( .A(raA[2]), .Y(n126) );
   INVX4 U261 ( .A(n126), .Y(n127) );
-  AND2X4 U262 ( .A(inst_dof_t[28]), .B(n55), .Y(inst_dof_out[28]) );
+  AND2X4 U262 ( .A(inst_dof_t[28]), .B(n55), .Y(inst_dof[28]) );
   INVX1 U263 ( .A(mb_dof), .Y(n129) );
   AND2X2 U264 ( .A(cs_dof_t), .B(n131), .Y(cs_dof) );
   AND4X1 U265 ( .A(n61), .B(n128), .C(n63), .D(n64), .Y(n132) );
-  AND2X2 U266 ( .A(inst_dof_t[6]), .B(n141), .Y(inst_dof_out[6]) );
-  NOR2X1 U267 ( .A(n122), .B(n147), .Y(inst_dof_out[13]) );
+  AND2X2 U266 ( .A(inst_dof_t[6]), .B(n141), .Y(inst_dof[6]) );
+  NOR2X1 U267 ( .A(n122), .B(n147), .Y(inst_dof[13]) );
   INVX8 U268 ( .A(clk), .Y(_1_net_) );
-  AND2X2 U269 ( .A(inst_dof_t[26]), .B(n55), .Y(inst_dof_out[26]) );
+  AND2X2 U269 ( .A(inst_dof_t[26]), .B(n55), .Y(inst_dof[26]) );
   XNOR2X1 U270 ( .A(dr_ex[2]), .B(imm_dof[12]), .Y(n128) );
   AND2X6 U271 ( .A(sa_dof_t[1]), .B(n55), .Y(sa_dof[1]) );
   AND2X4 U272 ( .A(sa_dof_t[3]), .B(n140), .Y(sa_dof[3]) );
@@ -9927,7 +9928,7 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   NOR4BBX4 U276 ( .AN(n132), .BN(n133), .C(n130), .D(n59), .Y(hb) );
   INVX4 U277 ( .A(n129), .Y(n130) );
   AND2XL U278 ( .A(mb_dof_t), .B(n120), .Y(mb_dof) );
-  NOR2BX1 U279 ( .AN(inst_dof_t[10]), .B(n122), .Y(inst_dof_out[10]) );
+  NOR2BX1 U279 ( .AN(inst_dof_t[10]), .B(n122), .Y(inst_dof[10]) );
   AND2X2 U280 ( .A(n60), .B(rw_ex), .Y(n133) );
   XNOR2X1 U281 ( .A(dr_ex[4]), .B(sb_dof[4]), .Y(n63) );
   AND2XL U282 ( .A(sb_dof_t[4]), .B(n134), .Y(sb_dof[4]) );
@@ -9946,7 +9947,7 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   AND2XL U295 ( .A(imm_dof_t[0]), .B(n131), .Y(imm_dof[0]) );
   AND2XL U296 ( .A(imm_dof_t[5]), .B(n141), .Y(imm_dof[5]) );
   AND2XL U297 ( .A(imm_dof_t[7]), .B(n141), .Y(imm_dof[7]) );
-  NOR2XL U298 ( .A(n125), .B(n146), .Y(inst_dof_out[14]) );
+  NOR2XL U298 ( .A(n125), .B(n146), .Y(inst_dof[14]) );
   CLKBUFX3 U299 ( .A(n56), .Y(n138) );
   CLKBUFX3 U300 ( .A(n56), .Y(n137) );
   XNOR2XL U301 ( .A(dr_ex[0]), .B(sb_dof[0]), .Y(n61) );
@@ -9955,7 +9956,7 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   XNOR2XL U304 ( .A(dr_ex[3]), .B(sa_dof[3]), .Y(n72) );
   XNOR2XL U305 ( .A(dr_ex[1]), .B(sb_dof[1]), .Y(n60) );
   XNOR2XL U306 ( .A(dr_ex[1]), .B(sa_dof[1]), .Y(n68) );
-  AND2XL U307 ( .A(inst_dof_t[7]), .B(n131), .Y(inst_dof_out[7]) );
+  AND2XL U307 ( .A(inst_dof_t[7]), .B(n131), .Y(inst_dof[7]) );
   AND2XL U308 ( .A(ps_dof_t), .B(n131), .Y(ps_dof) );
   AND2XL U309 ( .A(md_dof_t[0]), .B(n141), .Y(md_dof[0]) );
   AND2XL U310 ( .A(bs_dof_t[1]), .B(n131), .Y(bs_dof[1]) );
@@ -9967,8 +9968,8 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   NAND4BBXL U316 ( .AN(mc_pre[0]), .BN(mc_pre[1]), .C(enable_pipeline), .D(
         n131), .Y(n56) );
   AND2XL U317 ( .A(md_dof_t[1]), .B(n141), .Y(md_dof[1]) );
-  AND4XL U318 ( .A(inst_dof_t[10]), .B(inst_dof_t[0]), .C(inst_dof_out[9]),
-        .D(inst_if_out[9]), .Y(n85) );
+  AND4XL U318 ( .A(inst_dof_t[10]), .B(inst_dof_t[0]), .C(inst_dof[9]), .D(
+        inst_if[9]), .Y(n85) );
   AND2XL U319 ( .A(dr_dof_t[1]), .B(n121), .Y(dr_dof[1]) );
   AND2XL U320 ( .A(dr_dof_t[2]), .B(n141), .Y(dr_dof[2]) );
   AND2XL U321 ( .A(dr_dof_t[3]), .B(n121), .Y(dr_dof[3]) );
@@ -9988,9 +9989,9 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   AND2XL U335 ( .A(op_dof_t[4]), .B(n121), .Y(op_dof[4]) );
   CLKBUFX3 U336 ( .A(ma_dof), .Y(n135) );
   AND2X2 U337 ( .A(mw_dof_t), .B(n121), .Y(mw_dof) );
-  NOR2X1 U338 ( .A(n124), .B(n148), .Y(inst_dof_out[12]) );
-  NOR2X1 U339 ( .A(n122), .B(n149), .Y(inst_dof_out[11]) );
-  NOR2X1 U340 ( .A(n123), .B(n150), .Y(inst_dof_out[8]) );
+  NOR2X1 U338 ( .A(n124), .B(n148), .Y(inst_dof[12]) );
+  NOR2X1 U339 ( .A(n122), .B(n149), .Y(inst_dof[11]) );
+  NOR2X1 U340 ( .A(n123), .B(n150), .Y(inst_dof[8]) );
   NOR4X1 U341 ( .A(n179), .B(n178), .C(n177), .D(n176), .Y(n81) );
   NOR4X1 U342 ( .A(n175), .B(n174), .C(n173), .D(n155), .Y(n80) );
   NOR4X1 U343 ( .A(n162), .B(n161), .C(n160), .D(n159), .Y(n84) );
@@ -10004,53 +10005,53 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   NOR4X1 U351 ( .A(n164), .B(n163), .C(n154), .D(n150), .Y(n77) );
   NOR4X1 U352 ( .A(n168), .B(n167), .C(n166), .D(n165), .Y(n78) );
   NOR4X1 U353 ( .A(n172), .B(n171), .C(n170), .D(n169), .Y(n79) );
-  NOR2X1 U354 ( .A(n137), .B(n157), .Y(inst_if_out[3]) );
-  NOR2X1 U355 ( .A(n138), .B(n155), .Y(inst_if_out[1]) );
-  NOR2X1 U356 ( .A(n137), .B(n156), .Y(inst_if_out[2]) );
-  NOR2X1 U357 ( .A(n137), .B(n158), .Y(inst_if_out[4]) );
-  NOR2X1 U358 ( .A(n137), .B(n159), .Y(inst_if_out[5]) );
-  NOR2X1 U359 ( .A(n137), .B(n160), .Y(inst_if_out[6]) );
-  NOR2X1 U360 ( .A(n137), .B(n161), .Y(inst_if_out[7]) );
-  NOR2X1 U361 ( .A(n137), .B(n162), .Y(inst_if_out[8]) );
-  NOR2X1 U362 ( .A(n138), .B(n167), .Y(inst_if_out[14]) );
-  NOR2X1 U363 ( .A(n138), .B(n168), .Y(inst_if_out[15]) );
-  NOR2X1 U364 ( .A(n138), .B(n169), .Y(inst_if_out[16]) );
-  NOR2X1 U365 ( .A(n138), .B(n170), .Y(inst_if_out[17]) );
-  NOR2X1 U366 ( .A(n138), .B(n171), .Y(inst_if_out[18]) );
-  NOR2X1 U367 ( .A(n138), .B(n172), .Y(inst_if_out[19]) );
-  NOR2X1 U368 ( .A(n138), .B(n173), .Y(inst_if_out[20]) );
-  NOR2X1 U369 ( .A(n138), .B(n174), .Y(inst_if_out[21]) );
-  NOR2X1 U370 ( .A(n138), .B(n175), .Y(inst_if_out[22]) );
-  NOR2X1 U371 ( .A(n138), .B(n176), .Y(inst_if_out[23]) );
-  NOR2X1 U372 ( .A(n138), .B(n177), .Y(inst_if_out[24]) );
-  NOR2X1 U373 ( .A(n138), .B(n178), .Y(inst_if_out[25]) );
-  NOR2X1 U374 ( .A(n137), .B(n179), .Y(inst_if_out[26]) );
-  NOR2X1 U375 ( .A(n137), .B(n180), .Y(inst_if_out[27]) );
-  NOR2X1 U376 ( .A(n137), .B(n181), .Y(inst_if_out[28]) );
-  NOR2X1 U377 ( .A(n137), .B(n182), .Y(inst_if_out[29]) );
-  NOR2X1 U378 ( .A(n137), .B(n183), .Y(inst_if_out[30]) );
-  NOR2X1 U379 ( .A(n137), .B(n184), .Y(inst_if_out[31]) );
-  NOR2X1 U380 ( .A(n139), .B(n154), .Y(inst_if_out[0]) );
-  NOR2X1 U381 ( .A(n139), .B(n163), .Y(inst_if_out[10]) );
-  NOR2X1 U382 ( .A(n139), .B(n164), .Y(inst_if_out[11]) );
-  NOR2X1 U383 ( .A(n139), .B(n165), .Y(inst_if_out[12]) );
-  NOR2X1 U384 ( .A(n139), .B(n166), .Y(inst_if_out[13]) );
+  NOR2X1 U354 ( .A(n137), .B(n157), .Y(inst_if[3]) );
+  NOR2X1 U355 ( .A(n138), .B(n155), .Y(inst_if[1]) );
+  NOR2X1 U356 ( .A(n137), .B(n156), .Y(inst_if[2]) );
+  NOR2X1 U357 ( .A(n137), .B(n158), .Y(inst_if[4]) );
+  NOR2X1 U358 ( .A(n137), .B(n159), .Y(inst_if[5]) );
+  NOR2X1 U359 ( .A(n137), .B(n160), .Y(inst_if[6]) );
+  NOR2X1 U360 ( .A(n137), .B(n161), .Y(inst_if[7]) );
+  NOR2X1 U361 ( .A(n137), .B(n162), .Y(inst_if[8]) );
+  NOR2X1 U362 ( .A(n138), .B(n167), .Y(inst_if[14]) );
+  NOR2X1 U363 ( .A(n138), .B(n168), .Y(inst_if[15]) );
+  NOR2X1 U364 ( .A(n138), .B(n169), .Y(inst_if[16]) );
+  NOR2X1 U365 ( .A(n138), .B(n170), .Y(inst_if[17]) );
+  NOR2X1 U366 ( .A(n138), .B(n171), .Y(inst_if[18]) );
+  NOR2X1 U367 ( .A(n138), .B(n172), .Y(inst_if[19]) );
+  NOR2X1 U368 ( .A(n138), .B(n173), .Y(inst_if[20]) );
+  NOR2X1 U369 ( .A(n138), .B(n174), .Y(inst_if[21]) );
+  NOR2X1 U370 ( .A(n138), .B(n175), .Y(inst_if[22]) );
+  NOR2X1 U371 ( .A(n138), .B(n176), .Y(inst_if[23]) );
+  NOR2X1 U372 ( .A(n138), .B(n177), .Y(inst_if[24]) );
+  NOR2X1 U373 ( .A(n138), .B(n178), .Y(inst_if[25]) );
+  NOR2X1 U374 ( .A(n137), .B(n179), .Y(inst_if[26]) );
+  NOR2X1 U375 ( .A(n137), .B(n180), .Y(inst_if[27]) );
+  NOR2X1 U376 ( .A(n137), .B(n181), .Y(inst_if[28]) );
+  NOR2X1 U377 ( .A(n137), .B(n182), .Y(inst_if[29]) );
+  NOR2X1 U378 ( .A(n137), .B(n183), .Y(inst_if[30]) );
+  NOR2X1 U379 ( .A(n137), .B(n184), .Y(inst_if[31]) );
+  NOR2X1 U380 ( .A(n139), .B(n154), .Y(inst_if[0]) );
+  NOR2X1 U381 ( .A(n139), .B(n163), .Y(inst_if[10]) );
+  NOR2X1 U382 ( .A(n139), .B(n164), .Y(inst_if[11]) );
+  NOR2X1 U383 ( .A(n139), .B(n165), .Y(inst_if[12]) );
+  NOR2X1 U384 ( .A(n139), .B(n166), .Y(inst_if[13]) );
   CLKBUFX3 U385 ( .A(n56), .Y(n139) );
   NOR4X1 U386 ( .A(n146), .B(n147), .C(n148), .D(n149), .Y(n86) );
   XNOR2X1 U387 ( .A(dr_ex[4]), .B(sa_dof[4]), .Y(n71) );
   NAND2X1 U388 ( .A(n68), .B(rw_ex), .Y(n66) );
   AND2X4 U389 ( .A(sa_dof_t[0]), .B(n140), .Y(sa_dof[0]) );
   AND2X2 U390 ( .A(inst_dof_t[15]), .B(n55), .Y(n185) );
-  AND2X2 U391 ( .A(inst_dof_t[19]), .B(n142), .Y(inst_dof_out[19]) );
-  AND2X2 U392 ( .A(inst_dof_t[16]), .B(n55), .Y(inst_dof_out[16]) );
-  AND2X2 U393 ( .A(inst_dof_t[18]), .B(n119), .Y(inst_dof_out[18]) );
-  AND2X2 U394 ( .A(inst_dof_t[17]), .B(n119), .Y(inst_dof_out[17]) );
-  AND2X2 U395 ( .A(inst_dof_t[3]), .B(n131), .Y(inst_dof_out[3]) );
-  AND2X2 U396 ( .A(inst_dof_t[2]), .B(n141), .Y(inst_dof_out[2]) );
-  AND2X2 U397 ( .A(inst_dof_t[4]), .B(n131), .Y(inst_dof_out[4]) );
-  AND2X2 U398 ( .A(inst_dof_t[1]), .B(n131), .Y(inst_dof_out[1]) );
-  AND2X2 U399 ( .A(inst_dof_t[5]), .B(n141), .Y(inst_dof_out[5]) );
-  NOR2BX1 U400 ( .AN(inst_next[9]), .B(n139), .Y(inst_if_out[9]) );
+  AND2X2 U391 ( .A(inst_dof_t[19]), .B(n142), .Y(inst_dof[19]) );
+  AND2X2 U392 ( .A(inst_dof_t[16]), .B(n55), .Y(inst_dof[16]) );
+  AND2X2 U393 ( .A(inst_dof_t[18]), .B(n119), .Y(inst_dof[18]) );
+  AND2X2 U394 ( .A(inst_dof_t[17]), .B(n119), .Y(inst_dof[17]) );
+  AND2X2 U395 ( .A(inst_dof_t[3]), .B(n131), .Y(inst_dof[3]) );
+  AND2X2 U396 ( .A(inst_dof_t[2]), .B(n141), .Y(inst_dof[2]) );
+  AND2X2 U397 ( .A(inst_dof_t[4]), .B(n131), .Y(inst_dof[4]) );
+  AND2X2 U398 ( .A(inst_dof_t[1]), .B(n131), .Y(inst_dof[1]) );
+  AND2X2 U399 ( .A(inst_dof_t[5]), .B(n141), .Y(inst_dof[5]) );
+  NOR2BX1 U400 ( .AN(inst_next[9]), .B(n139), .Y(inst_if[9]) );
   CLKINVX1 U401 ( .A(inst_next[1]), .Y(n155) );
   CLKINVX1 U402 ( .A(inst_next[16]), .Y(n169) );
   CLKINVX1 U403 ( .A(inst_next[12]), .Y(n165) );
@@ -10092,18 +10093,18 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   CLKINVX1 U439 ( .A(dr_ex[2]), .Y(n151) );
   NOR2X1 U440 ( .A(dr_ex[4]), .B(dr_ex[3]), .Y(n67) );
   CLKINVX1 U441 ( .A(inst_dof_t[8]), .Y(n150) );
-  AND2X2 U442 ( .A(inst_dof_t[22]), .B(n121), .Y(inst_dof_out[22]) );
-  AND2X2 U443 ( .A(inst_dof_t[21]), .B(n141), .Y(inst_dof_out[21]) );
-  AND2X2 U444 ( .A(inst_dof_t[20]), .B(n141), .Y(inst_dof_out[20]) );
-  AND2X2 U445 ( .A(inst_dof_t[24]), .B(n131), .Y(inst_dof_out[24]) );
-  AND2X2 U446 ( .A(inst_dof_t[23]), .B(n121), .Y(inst_dof_out[23]) );
+  AND2X2 U442 ( .A(inst_dof_t[22]), .B(n121), .Y(inst_dof[22]) );
+  AND2X2 U443 ( .A(inst_dof_t[21]), .B(n141), .Y(inst_dof[21]) );
+  AND2X2 U444 ( .A(inst_dof_t[20]), .B(n141), .Y(inst_dof[20]) );
+  AND2X2 U445 ( .A(inst_dof_t[24]), .B(n131), .Y(inst_dof[24]) );
+  AND2X2 U446 ( .A(inst_dof_t[23]), .B(n121), .Y(inst_dof[23]) );
   NOR4X1 U447 ( .A(n112), .B(n113), .C(n114), .D(n115), .Y(n96) );
-  NAND4X1 U448 ( .A(inst_wb_out[27]), .B(inst_wb_out[26]), .C(inst_wb_out[25]),
-        .D(inst_wb_out[24]), .Y(n112) );
-  NAND4X1 U449 ( .A(inst_wb_out[30]), .B(inst_wb_out[2]), .C(inst_wb_out[29]),
-        .D(inst_wb_out[28]), .Y(n113) );
-  NAND4X1 U450 ( .A(inst_wb_out[5]), .B(inst_wb_out[4]), .C(inst_wb_out[3]),
-        .D(inst_wb_out[31]), .Y(n114) );
+  NAND4X1 U448 ( .A(inst_wb[27]), .B(inst_wb[26]), .C(inst_wb[25]), .D(
+        inst_wb[24]), .Y(n112) );
+  NAND4X1 U449 ( .A(inst_wb[30]), .B(inst_wb[2]), .C(inst_wb[29]), .D(
+        inst_wb[28]), .Y(n113) );
+  NAND4X1 U450 ( .A(inst_wb[5]), .B(inst_wb[4]), .C(inst_wb[3]), .D(
+        inst_wb[31]), .Y(n114) );
   NOR4X1 U451 ( .A(n89), .B(n90), .C(n91), .D(n92), .Y(n88) );
   NAND4X1 U452 ( .A(inst_dof_t[4]), .B(inst_dof_t[5]), .C(inst_dof_t[6]), .D(
         inst_dof_t[7]), .Y(n89) );
@@ -10112,34 +10113,32 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   NAND4X1 U454 ( .A(inst_dof_t[26]), .B(inst_dof_t[27]), .C(inst_dof_t[28]),
         .D(inst_dof_t[29]), .Y(n91) );
   NOR4X1 U455 ( .A(n100), .B(n101), .C(n102), .D(n103), .Y(n99) );
-  NAND4X1 U456 ( .A(inst_ex_out[12]), .B(inst_ex_out[11]), .C(inst_ex_out[10]),
-        .D(inst_ex_out[0]), .Y(n100) );
-  NAND4X1 U457 ( .A(inst_ex_out[16]), .B(inst_ex_out[15]), .C(inst_ex_out[14]),
-        .D(inst_ex_out[13]), .Y(n101) );
-  NAND4X1 U458 ( .A(inst_ex_out[1]), .B(inst_ex_out[19]), .C(inst_ex_out[18]),
-        .D(inst_ex_out[17]), .Y(n102) );
+  NAND4X1 U456 ( .A(inst_ex[12]), .B(inst_ex[11]), .C(inst_ex[10]), .D(
+        inst_ex[0]), .Y(n100) );
+  NAND4X1 U457 ( .A(inst_ex[16]), .B(inst_ex[15]), .C(inst_ex[14]), .D(
+        inst_ex[13]), .Y(n101) );
+  NAND4X1 U458 ( .A(inst_ex[1]), .B(inst_ex[19]), .C(inst_ex[18]), .D(
+        inst_ex[17]), .Y(n102) );
   NOR4X1 U459 ( .A(n104), .B(n105), .C(n106), .D(n107), .Y(n98) );
-  NAND4X1 U460 ( .A(inst_ex_out[27]), .B(inst_ex_out[26]), .C(inst_ex_out[25]),
-        .D(inst_ex_out[24]), .Y(n104) );
-  NAND4X1 U461 ( .A(inst_ex_out[30]), .B(inst_ex_out[2]), .C(inst_ex_out[29]),
-        .D(inst_ex_out[28]), .Y(n105) );
-  NAND4X1 U462 ( .A(inst_ex_out[5]), .B(inst_ex_out[4]), .C(inst_ex_out[3]),
-        .D(inst_ex_out[31]), .Y(n106) );
+  NAND4X1 U460 ( .A(inst_ex[27]), .B(inst_ex[26]), .C(inst_ex[25]), .D(
+        inst_ex[24]), .Y(n104) );
+  NAND4X1 U461 ( .A(inst_ex[30]), .B(inst_ex[2]), .C(inst_ex[29]), .D(
+        inst_ex[28]), .Y(n105) );
+  NAND4X1 U462 ( .A(inst_ex[5]), .B(inst_ex[4]), .C(inst_ex[3]), .D(
+        inst_ex[31]), .Y(n106) );
   NOR4X1 U463 ( .A(n108), .B(n109), .C(n110), .D(n111), .Y(n97) );
-  NAND4X1 U464 ( .A(inst_wb_out[12]), .B(inst_wb_out[11]), .C(inst_wb_out[10]),
-        .D(inst_wb_out[0]), .Y(n108) );
-  NAND4X1 U465 ( .A(inst_wb_out[16]), .B(inst_wb_out[15]), .C(inst_wb_out[14]),
-        .D(inst_wb_out[13]), .Y(n109) );
-  NAND4X1 U466 ( .A(inst_wb_out[1]), .B(inst_wb_out[19]), .C(inst_wb_out[18]),
-        .D(inst_wb_out[17]), .Y(n110) );
-  NAND4X1 U467 ( .A(inst_wb_out[23]), .B(inst_wb_out[22]), .C(inst_wb_out[21]),
-        .D(inst_wb_out[20]), .Y(n111) );
-  NAND4X1 U468 ( .A(inst_wb_out[9]), .B(inst_wb_out[8]), .C(inst_wb_out[7]),
-        .D(inst_wb_out[6]), .Y(n115) );
-  NAND4X1 U469 ( .A(inst_ex_out[23]), .B(inst_ex_out[22]), .C(inst_ex_out[21]),
-        .D(inst_ex_out[20]), .Y(n103) );
-  NAND4X1 U470 ( .A(inst_ex_out[9]), .B(inst_ex_out[8]), .C(inst_ex_out[7]),
-        .D(inst_ex_out[6]), .Y(n107) );
+  NAND4X1 U464 ( .A(inst_wb[12]), .B(inst_wb[11]), .C(inst_wb[10]), .D(
+        inst_wb[0]), .Y(n108) );
+  NAND4X1 U465 ( .A(inst_wb[16]), .B(inst_wb[15]), .C(inst_wb[14]), .D(
+        inst_wb[13]), .Y(n109) );
+  NAND4X1 U466 ( .A(inst_wb[1]), .B(inst_wb[19]), .C(inst_wb[18]), .D(
+        inst_wb[17]), .Y(n110) );
+  NAND4X1 U467 ( .A(inst_wb[23]), .B(inst_wb[22]), .C(inst_wb[21]), .D(
+        inst_wb[20]), .Y(n111) );
+  NAND4X1 U468 ( .A(inst_wb[9]), .B(inst_wb[8]), .C(inst_wb[7]), .D(inst_wb[6]), .Y(n115) );
+  NAND4X1 U469 ( .A(inst_ex[23]), .B(inst_ex[22]), .C(inst_ex[21]), .D(
+        inst_ex[20]), .Y(n103) );
+  NAND4X1 U470 ( .A(inst_ex[9]), .B(inst_ex[8]), .C(inst_ex[7]), .D(inst_ex[6]), .Y(n107) );
   NAND4X1 U471 ( .A(inst_dof_t[22]), .B(inst_dof_t[23]), .C(inst_dof_t[24]),
         .D(inst_dof_t[25]), .Y(n92) );
   NOR2X1 U472 ( .A(n93), .B(n94), .Y(n87) );
@@ -10150,11 +10149,11 @@ module Risc ( clk, rst_n, halt, inst_if_out, inst_dof_out, inst_ex_out,
   XOR2X1 U475 ( .A(overflow_wb), .B(negative_wb), .Y(\_33_net_[0] ) );
   XOR2XL U476 ( .A(overflow), .B(negative), .Y(\_24_net_[0] ) );
   NAND4X1 U477 ( .A(n69), .B(n70), .C(n71), .D(n72), .Y(n65) );
-  AND2XL U478 ( .A(inst_dof_t[15]), .B(n131), .Y(inst_dof_out[15]) );
+  AND2XL U478 ( .A(inst_dof_t[15]), .B(n131), .Y(inst_dof[15]) );
   AND2XL U479 ( .A(bs_dof_t[0]), .B(n141), .Y(bs_dof[0]) );
   XNOR2XL U480 ( .A(dr_ex[0]), .B(sa_dof[0]), .Y(n69) );
-  NOR2BXL U481 ( .AN(inst_dof_t[0]), .B(n123), .Y(inst_dof_out[0]) );
-  NOR2BXL U482 ( .AN(inst_dof_t[9]), .B(n123), .Y(inst_dof_out[9]) );
+  NOR2BXL U481 ( .AN(inst_dof_t[0]), .B(n123), .Y(inst_dof[0]) );
+  NOR2BXL U482 ( .AN(inst_dof_t[9]), .B(n123), .Y(inst_dof[9]) );
   XOR2X4 U483 ( .A(zero), .B(ps_ex), .Y(n95) );
 endmodule
 
