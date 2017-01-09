@@ -142,7 +142,7 @@ module stimulus;
     end
 
     always @(posedge clk) begin
-        $display("cycle %d, r1 %d, r2 %d, r3 %d", cycle, regs[1], regs[2], regs[3]);
+        $display("cycle %d, r1 %d, r2 %d, r3 %d, r4 %d", cycle, regs[1], regs[2], regs[3], regs[4]);
         cycle = cycle + 1;
     end
 
